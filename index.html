@@ -691,6 +691,23 @@
       return null;
     }
 
+// ฟังก์ชันแปลงวันที่ GMT ให้กลับเป็น วว/ดด/ปปปป พ.ศ. เสมอ
+    function formatCleanDate(str) {
+      if (!str) return '';
+      let s = String(str).trim();
+      if (s.includes('GMT') || s.includes('เวลา')) {
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) {
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          let year = d.getFullYear();
+          if (year < 2400) year += 543; // แปลงเป็น พ.ศ.
+          return `${day}/${month}/${year}`;
+        }
+      }
+      return s;
+    }
+    
     function updateTeacherLicenseAlertBox(expDateStr) {
       const box = document.getElementById('teacher-license-alert-box');
       if (!box) return;
@@ -997,7 +1014,7 @@
 
         const isOutsourced = (t._sheetName || '').includes("ลูกจ้างเหมา") || (t["ตำแหน่ง"] || '').includes("เหมาบริการ");
         const appointLabel = isOutsourced ? "วันเริ่มสัญญาจ้าง" : "วันที่บรรจุ";
-        const appointDateVal = t["วันบรรจุ"] || '';
+        const appointDateVal = formatCleanDate(t["วันบรรจุ"]);
 
         safeText('lbl-appoint-date', appointLabel);
         safeVal('f-appoint-date', appointDateVal);
@@ -1019,7 +1036,7 @@
         safeVal('f-insignia', t["เครื่องราชอิสริยาภรณ์ที่เคยได้รับ"] || '');
 
         let parsedAge = 0;
-        const birthStr = String(t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '');
+        const birthStr = formatCleanDate(t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"]);
         if (birthStr.includes('/')) {
           const parts = birthStr.split('/');
           if (parts.length === 3) {
@@ -1031,7 +1048,7 @@
         }
         autoCalculateAge();
 
-        let retireText = t["วันเกษียณ"] || '';
+        let retireText = formatCleanDate(t["วันเกษียณ"]);
         if (parsedAge >= 60 || (typeof t["อายุ"] === 'string' && parseInt(t["อายุ"]) >= 60)) {
           retireText = 'เกษียณอายุราชการแล้ว';
         } else if (!retireText) {
