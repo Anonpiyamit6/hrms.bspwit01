@@ -154,13 +154,24 @@
           </button>
 
           <div class="flex flex-col sm:flex-row items-center gap-6 mt-2">
-            <div class="relative group">
-              <img id="form-avatar" src="" onerror="handleImgError(this, 'Teacher')" class="w-28 h-28 rounded-3xl object-cover ring-4 ring-white/40 shadow-lg bg-white">
-              <label for="form-file" class="absolute inset-0 bg-black/40 rounded-3xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition text-xs font-medium">
-                <i class="fa-solid fa-crop-simple text-xl mb-1"></i> เปลี่ยนรูปถ่าย
-              </label>
+            <!-- กรอบรูปภาพพร้อมป้ายบอกชัดเจนว่ากดเปลี่ยนรูปได้ -->
+            <label for="form-file" class="relative group cursor-pointer block">
+              <div class="w-28 h-28 rounded-3xl overflow-hidden ring-4 ring-white/60 shadow-lg bg-white relative">
+                <img id="form-avatar" src="" onerror="handleImgError(this, 'Teacher')" class="w-full h-full object-cover">
+                
+                <!-- แถบข้อความด้านล่างรูป (แสดงตลอดเวลา ไม่ต้องรอเอาเมาส์ชี้) -->
+                <div class="absolute bottom-0 inset-x-0 bg-slate-900/70 backdrop-blur-xs text-white text-[11px] py-1.5 text-center font-bold flex items-center justify-center gap-1 group-hover:bg-slate-900/85 transition">
+                  <i class="fa-solid fa-camera text-pastelYellow-400"></i> กดเปลี่ยนรูป
+                </div>
+              </div>
+              
+              <!-- ปุ่มไอคอนกล้องลอยตรงมุมรูป เพิ่มความเด่นชัด -->
+              <span class="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-pastelYellow-400 text-slate-800 flex items-center justify-center shadow-md ring-2 ring-white text-xs">
+                <i class="fa-solid fa-camera"></i>
+              </span>
+
               <input type="file" id="form-file" accept="image/*" class="hidden" onchange="initCropProcess(event)">
-            </div>
+            </label>
             <div class="text-center sm:text-left space-y-1.5">
               <span id="label-dept" class="text-xs px-3 py-1 rounded-full bg-white/20 text-white border border-white/30 font-medium">กลุ่มสาระ-</span>
               <h2 id="label-name" class="text-2xl font-bold mt-1 leading-tight">-</h2>
