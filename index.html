@@ -534,16 +534,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       initDateDropdowns();
-      // ดึงข้อมูลเก่าที่เคยจำไว้ในเครื่องมาแสดงผลทันทีใน 0.05 วินาที
-      const cached = localStorage.getItem('OFFLINE_TEACHERS');
-      if (cached) {
-        try {
-          rawTeacherList = JSON.parse(cached);
-          setupNameDropdown();
-        } catch(e) {}
-      }
-      // โหลดข้อมูลล่าสุดจากชีทเงียบๆ เบื้องหลัง (ไม่ขึ้นกล่องหมุนมาบัง)
-      loadSystemData(false);
+      loadSystemData(false); // ให้โหลดข้อมูลเตรียมไว้ทันทีที่เปิดเว็บ
     });
 
     function initDateDropdowns() {
@@ -654,19 +645,16 @@
     }
 
    async function loadSystemData(showLoading = false) {
-      // แสดงปุ่มหมุนเล็กๆ เฉพาะคนที่ไม่มีข้อมูลในเครื่องเลยจริงๆ
-      if (showLoading && rawTeacherList.length === 0) {
-        Swal.fire({ title: 'กำลังโหลดข้อมูล...', text: 'ครั้งแรกอาจใช้เวลาสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      if (showLoading) {
+        Swal.fire({ title: 'กำลังโหลดข้อมูล...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
       }
       try {
         const res = await fetch(`${API_URL}?action=getAll`);
         const json = await res.json();
         if (showLoading) Swal.close();
         
-        if (json.success) {
+        if (json.success && json.data) {
           rawTeacherList = json.data;
-          // จำข้อมูลลงในเครื่องของผู้ใช้ เพื่อให้ครั้งต่อไปเปิดได้ทันที
-          localStorage.setItem('OFFLINE_TEACHERS', JSON.stringify(rawTeacherList));
           setupNameDropdown();
           if (isAdminUnlocked) {
             renderAdminCards();
@@ -674,9 +662,7 @@
           }
         }
       } catch (err) {
-        if (showLoading && rawTeacherList.length === 0) {
-          Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อ Google Sheets ได้', 'error');
-        }
+        if (showLoading) Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อ Google Sheets ได้', 'error');
       }
     }
 
@@ -746,12 +732,23 @@
       setupNameDropdown(q);
     }
 
-    function loginWithCid() {
+    async function loginWithCid() {
       const cid = document.getElementById('input-cid').value.trim();
       if (cid.length !== 13) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
+      
+      // ถ้าระบบยังโหลดข้อมูลไม่เสร็จ ให้รอโหลดข้อมูลก่อน ไม่เด้งแจ้งเตือนผิดๆ
+      if (rawTeacherList.length === 0) {
+        Swal.fire({ title: 'กำลังโหลดข้อมูล...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        await loadSystemData(false);
+        Swal.close();
+      }
+
       const match = rawTeacherList.find(t => String(t["เลขที่บัตรประชาชน"]).replace(/\D/g, '') === cid);
-      if (match) openProfileEditor(match);
-      else Swal.fire('ไม่พบเลขบัตรในระบบ', 'หากยังไม่เคยกรอกเลขบัตรประชาชน กรุณาเลือกแท็บ "ไม่มีเลขบัตร (ค้นด้วยชื่อ)" เพื่อเข้าไปกรอกเลขบัตรได้ครับ', 'info');
+      if (match) {
+        openProfileEditor(match);
+      } else {
+        Swal.fire('ไม่พบเลขบัตรในระบบ', 'หากยังไม่เคยกรอกเลขบัตรประชาชน กรุณาเลือกแท็บ "ไม่มีเลขบัตร (ค้นด้วยชื่อ)" เพื่อเข้าไปกรอกเลขบัตรได้ครับ', 'info');
+      }
     }
 
     function loginWithName() {
