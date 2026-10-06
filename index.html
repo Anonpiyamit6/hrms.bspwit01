@@ -3,154 +3,207 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบสารสนเทศข้อมูลครูและบุคลากร</title>
+  <title>ระบบสารสนเทศและแฟ้มประวัติบุคลากรครู</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Prompt & Sarabun -->
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome & Chart.js & SweetAlert2 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            mint: { 50: '#F2FBF7', 100: '#E1F6ED', 200: '#C7EEDD', 500: '#34D399', 600: '#10B981', 700: '#059669' },
+            pastelSky: { 50: '#F0F9FF', 100: '#E0F2FE', 200: '#BAE6FD', 400: '#38BDF8', 500: '#0EA5E9', 700: '#0369A1' },
+            pastelYellow: { 50: '#FEFCE8', 100: '#FEF9C3', 200: '#FEF08A', 400: '#FACC15', 500: '#EAB308', 700: '#A16207' },
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    body { font-family: 'Sarabun', sans-serif; }
-    h1, h2, h3, h4, .font-heading { font-family: 'Prompt', sans-serif; }
+    body { font-family: 'Sarabun', sans-serif; background-color: #F8FAF9; }
+    h1, h2, h3, h4, h5, .font-heading { font-family: 'Prompt', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
   </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col">
+<body class="min-h-screen text-slate-700 flex flex-col antialiased">
 
   <!-- ================= NAVBAR ================= -->
-  <header class="bg-indigo-950 text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchMode('teacher')">
-        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow">
-          <i class="fa-solid fa-graduation-cap text-lg"></i>
+  <header class="bg-white/80 backdrop-blur-md border-b border-emerald-100 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-18 py-3.5 flex justify-between items-center">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchMainTab('teacher')">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-mint-500 to-pastelSky-400 flex items-center justify-center text-white shadow-md shadow-mint-500/20">
+          <i class="fa-solid fa-graduation-cap text-xl"></i>
         </div>
         <div>
-          <h1 class="text-base sm:text-lg font-bold leading-none">ระบบข้อมูลบุคลากรครู</h1>
-          <span class="text-[11px] text-indigo-300">Teacher Management System</span>
+          <h1 class="text-base sm:text-lg font-bold text-slate-800 leading-tight">ระบบสารสนเทศข้อมูลครู</h1>
+          <p class="text-[11px] text-mint-700 font-medium">Teacher Dossier & Information Portal</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
-        <button onclick="switchMode('teacher')" id="btn-mode-teacher" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition bg-indigo-600 text-white">
-          <i class="fa-solid fa-user-pen mr-1"></i> สำหรับครู (กรอกข้อมูล)
+        <button onclick="switchMainTab('teacher')" id="btn-tab-teacher" class="px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-mint-500 text-white shadow-sm shadow-mint-500/20">
+          <i class="fa-solid fa-user-pen mr-1.5"></i> สำหรับครู (เข้าสู่ระบบ)
         </button>
-        <button onclick="handleAdminAccess()" id="btn-mode-admin" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 border border-indigo-700/50">
-          <i class="fa-solid fa-shield-halved text-amber-400 mr-1"></i> ผู้บริหาร (Admin)
+        <button onclick="handleAdminLogin()" id="btn-tab-admin" class="px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">
+          <i class="fa-solid fa-shield-halved text-pastelYellow-500 mr-1.5"></i> ผู้บริหาร (Admin)
         </button>
       </div>
     </div>
   </header>
 
   <!-- ================= MAIN CONTENT ================= -->
-  <main class="max-w-7xl mx-auto p-4 sm:p-6 flex-1 w-full">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
 
-    <!-- ================= 1. ส่วนของคุณครู (เข้ากรอก/อัปเดตข้อมูลตนเอง) ================= -->
+    <!-- ================= 1. ส่วนของคุณครู ================= -->
     <div id="section-teacher" class="max-w-3xl mx-auto space-y-6">
       
-      <!-- ขั้นตอนเลือกชื่อตนเอง -->
-      <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200">
+      <!-- บล็อกล็อกอินเข้าสู่ระบบ -->
+      <div id="login-card" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-emerald-100/80">
         <div class="text-center max-w-md mx-auto mb-6">
-          <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
-            <i class="fa-solid fa-address-card"></i>
+          <div class="w-14 h-14 bg-mint-50 text-mint-600 rounded-3xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+            <i class="fa-solid fa-fingerprint"></i>
           </div>
-          <h2 class="text-xl font-bold text-slate-800">เข้าสู่ระบบกรอกข้อมูลส่วนบุคคล</h2>
-          <p class="text-xs text-slate-500 mt-1">เลือกกลุ่มสาระฯ และชื่อของคุณ เพื่อเปิดหน้าบันทึกข้อมูล/อัปโหลดรูป</p>
+          <h2 class="text-xl font-bold text-slate-800">เข้าสู่ระบบแก้ไขข้อมูลส่วนบุคคล</h2>
+          <p class="text-xs text-slate-500 mt-1">เลือกวิธีเข้าสู่ระบบเพื่อเปิดแฟ้มข้อมูลและอัปโหลดรูปถ่ายของคุณ</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- ตัวสลับวิธีล็อกอิน (2 แท็บ) -->
+        <div class="flex p-1.5 bg-slate-100/80 rounded-2xl max-w-md mx-auto mb-6">
+          <button onclick="setLoginMethod('cid')" id="tab-btn-cid" class="flex-1 py-2 text-xs font-semibold rounded-xl transition bg-white text-emerald-700 shadow-sm">
+            <i class="fa-solid fa-id-card mr-1"></i> ใช้เลขบัตรประชาชน
+          </button>
+          <button onclick="setLoginMethod('name')" id="tab-btn-name" class="flex-1 py-2 text-xs font-semibold rounded-xl transition text-slate-500 hover:text-slate-800">
+            <i class="fa-solid fa-user mr-1"></i> ไม่มีเลขบัตร (ค้นด้วยชื่อ)
+          </button>
+        </div>
+
+        <!-- ฟอร์มเข้าสู่ระบบ: วิธีที่ 1 (เลขบัตรประชาชน) -->
+        <div id="login-by-cid" class="max-w-md mx-auto space-y-3">
+          <input type="text" id="input-cid" maxlength="13" placeholder="กรอกเลขบัตรประชาชน 13 หลัก" 
+                 class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-center text-lg font-mono tracking-widest focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition">
+          <button onclick="loginWithCid()" class="w-full py-3 bg-gradient-to-r from-mint-500 to-teal-500 hover:from-mint-600 hover:to-teal-600 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> เปิดแฟ้มข้อมูลของฉัน
+          </button>
+        </div>
+
+        <!-- ฟอร์มเข้าสู่ระบบ: วิธีที่ 2 (ค้นด้วยชื่อ-สกุล) -->
+        <div id="login-by-name" class="hidden max-w-md mx-auto space-y-3">
           <div>
-            <label class="text-xs font-bold text-slate-600 block mb-1">1. เลือกกลุ่มสาระการเรียนรู้</label>
-            <select id="teacher-select-dept" onchange="onDeptSelected()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-400 outline-none">
-              <option value="">-- เลือกกลุ่มสาระ --</option>
+            <label class="text-xs font-bold text-slate-600 mb-1 block">ค้นหาหรือเลือกชื่อของคุณ:</label>
+            <input type="text" id="input-name-filter" oninput="filterNameList()" placeholder="พิมพ์ชื่อของคุณเพื่อค้นหา..." 
+                   class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition mb-2">
+            <select id="select-teacher-name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white outline-none">
+              <option value="">-- กรุณาเลือกชื่อของคุณจากรายการ --</option>
             </select>
           </div>
-          <div>
-            <label class="text-xs font-bold text-slate-600 block mb-1">2. เลือกชื่อ - นามสกุลของคุณ</label>
-            <select id="teacher-select-name" onchange="onNameSelected()" disabled class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-400 outline-none disabled:bg-slate-100 disabled:text-slate-400">
-              <option value="">-- รอเลือกกลุ่มสาระก่อน --</option>
-            </select>
-          </div>
+          <button onclick="loginWithName()" class="w-full py-3 bg-gradient-to-r from-mint-500 to-teal-500 hover:from-mint-600 hover:to-teal-600 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> เปิดแฟ้มข้อมูลของฉัน
+          </button>
         </div>
       </div>
 
-      <!-- ฟอร์มกรอกข้อมูลครู (จะแสดงเมื่อเลือกชื่อแล้ว) -->
-      <div id="teacher-form-wrapper" class="hidden bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-900 p-6 text-white flex flex-col sm:flex-row items-center gap-6">
+      <!-- ฟอร์มกรอก/แก้ไขข้อมูล (แสดงหลังล็อกอินผ่าน) -->
+      <div id="profile-editor-card" class="hidden bg-white rounded-3xl shadow-sm border border-emerald-100 overflow-hidden">
+        
+        <!-- Header การ์ดโปรไฟล์พาสเทล -->
+        <div class="bg-gradient-to-r from-mint-500 via-teal-400 to-pastelSky-400 p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center gap-6">
           <div class="relative group">
-            <img id="form-img-preview" src="https://via.placeholder.com/150" class="w-28 h-28 rounded-2xl object-cover ring-4 ring-white/20 bg-white">
-            <label for="form-img-file" class="absolute inset-0 bg-black/50 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition text-xs font-medium">
-              <i class="fa-solid fa-camera text-lg mb-1"></i> อัปโหลดรูป
+            <img id="form-avatar" src="https://via.placeholder.com/150" class="w-28 h-28 rounded-3xl object-cover ring-4 ring-white/40 shadow-lg bg-white">
+            <label for="form-file" class="absolute inset-0 bg-black/40 rounded-3xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition text-xs font-medium backdrop-blur-xs">
+              <i class="fa-solid fa-camera text-xl mb-1"></i> อัปโหลดรูป
             </label>
-            <input type="file" id="form-img-file" accept="image/*" class="hidden" onchange="handleImageChange(event)">
+            <input type="file" id="form-file" accept="image/*" class="hidden" onchange="previewAvatar(event)">
           </div>
           <div class="text-center sm:text-left space-y-1">
-            <span id="form-dept-label" class="text-xs px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">กลุ่มสาระ-</span>
-            <h2 id="form-name-label" class="text-2xl font-bold mt-1">-</h2>
-            <p id="form-pos-label" class="text-xs text-indigo-200">-</p>
+            <span id="label-dept" class="text-xs px-3 py-1 rounded-full bg-white/20 text-white backdrop-blur-md border border-white/30 font-medium">กลุ่มสาระ-</span>
+            <h2 id="label-name" class="text-2xl font-bold mt-1.5">-</h2>
+            <p id="label-pos" class="text-xs text-white/90">-</p>
           </div>
         </div>
 
-        <form onsubmit="saveTeacherData(event)" class="p-6 sm:p-8 space-y-6">
+        <form onsubmit="saveProfileData(event)" class="p-6 sm:p-8 space-y-6">
           <input type="hidden" id="f-sheet">
           <input type="hidden" id="f-row">
 
-          <!-- ช่องเลขบัตรประชาชน (ไฮไลท์เป็นพิเศษ) -->
-          <div class="bg-amber-50 border border-amber-200/80 p-4 rounded-2xl">
-            <label class="text-xs font-bold text-amber-900 block flex items-center gap-1.5">
-              <i class="fa-solid fa-id-card text-amber-600"></i> เลขประจำตัวประชาชน 13 หลัก <span class="text-rose-500">*จำเป็น</span>
+          <!-- ช่องเลขบัตรประชาชน (ไฮไลท์สีครีม-เหลืองพาสเทล) -->
+          <div class="bg-pastelYellow-50 border border-pastelYellow-200 p-4 rounded-2xl">
+            <label class="text-xs font-bold text-pastelYellow-700 flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-id-card text-pastelYellow-500"></i> เลขประจำตัวประชาชน 13 หลัก 
+              <span class="text-rose-500 font-normal">*สำคัญ (กรุณากรอกหากยังว่างอยู่)</span>
             </label>
-            <input type="text" id="f-cid" maxlength="13" placeholder="กรอกเลขบัตรประชาชน 13 หลัก" 
-                   class="w-full mt-1.5 p-3 bg-white border border-amber-300 rounded-xl font-mono text-base tracking-wider focus:outline-none focus:ring-2 focus:ring-amber-400">
-            <p class="text-[11px] text-amber-700 mt-1">กรุณากรอกเลขบัตรประชาชนเพื่อความสมบูรณ์ของฐานข้อมูลโรงเรียน</p>
+            <input type="text" id="f-cid" maxlength="13" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" 
+                   class="w-full p-3 bg-white border border-pastelYellow-200 rounded-xl font-mono text-base tracking-widest focus:ring-2 focus:ring-pastelYellow-400 outline-none">
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="text-xs font-semibold text-slate-600">ชื่อ - นามสกุล</label>
-              <input type="text" id="f-name" class="w-full mt-1 p-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-slate-600">วันเกิด (วัน/เดือน/ปี พ.ศ.)</label>
-              <input type="text" id="f-birth" placeholder="เช่น 13/10/2533" class="w-full mt-1 p-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-slate-600">เบอร์โทรศัพท์</label>
-              <input type="text" id="f-phone" class="w-full mt-1 p-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-slate-600">e-mail (ส่วนตัว)</label>
-              <input type="email" id="f-email" class="w-full mt-1 p-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
-            <div>
-              <label class="text-xs font-semibold text-slate-600">การศึกษาสูงสุด</label>
-              <select id="f-education" class="w-full mt-1 p-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
-                <option value="ปริญญาตรี">ปริญญาตรี</option>
-                <option value="ปริญญาโท">ปริญญาโท</option>
-                <option value="ปริญญาเอก">ปริญญาเอก</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-slate-600">วุฒิการศึกษา (ย่อ เช่น วท.บ., ค.บ.)</label>
-              <input type="text" id="f-degree" class="w-full mt-1 p-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
-            </div>
-            <div class="sm:col-span-2">
-              <label class="text-xs font-semibold text-slate-600">วิชาเอก</label>
-              <input type="text" id="f-major" class="w-full mt-1 p-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-slate-600">เลขที่ใบประกอบวิชาชีพ</label>
-              <input type="text" id="f-license-no" class="w-full mt-1 p-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-slate-600">วันหมดอายุใบประกอบวิชาชีพ</label>
-              <input type="text" id="f-license-exp" placeholder="เช่น 30 พ.ค. 2570" class="w-full mt-1 p-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
+          <!-- ข้อมูลทั่วไป -->
+          <div>
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <i class="fa-solid fa-user text-mint-500"></i> ข้อมูลส่วนตัวและการติดต่อ
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-semibold text-slate-600">ชื่อ - นามสกุล</label>
+                <input type="text" id="f-name" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-600">วันเกิด (วัน/เดือน/ปี พ.ศ.)</label>
+                <input type="text" id="f-birth" placeholder="เช่น 13/10/2533" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-600">เบอร์โทรศัพท์</label>
+                <input type="text" id="f-phone" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-600">อีเมลส่วนตัว (ไม่ใช่ของ รร.)</label>
+                <input type="email" id="f-email" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition">
+              </div>
             </div>
           </div>
 
-          <button type="submit" id="btn-save" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลเข้า Google Sheets
+          <!-- การศึกษาและวิชาชีพ -->
+          <div class="pt-4 border-t border-slate-100">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <i class="fa-solid fa-award text-mint-500"></i> คุณวุฒิและใบประกอบวิชาชีพ
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-semibold text-slate-600">การศึกษาสูงสุด</label>
+                <select id="f-edu" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
+                  <option value="ปริญญาตรี">ปริญญาตรี</option>
+                  <option value="ปริญญาโท">ปริญญาโท</option>
+                  <option value="ปริญญาเอก">ปริญญาเอก</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-600">วุฒิการศึกษา (ย่อ เช่น วท.บ., ค.บ.)</label>
+                <input type="text" id="f-degree" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="text-xs font-semibold text-slate-600">วิชาเอก</label>
+                <input type="text" id="f-major" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-600">เลขที่ใบประกอบวิชาชีพ</label>
+                <input type="text" id="f-license" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-600">วันหมดอายุใบประกอบวิชาชีพ</label>
+                <input type="text" id="f-license-exp" placeholder="เช่น 30 พ.ค. 2570" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" id="btn-save" class="w-full py-3.5 bg-gradient-to-r from-mint-500 to-teal-500 hover:from-mint-600 hover:to-teal-600 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลและส่งเข้า Google Sheet ทันที
           </button>
         </form>
       </div>
@@ -160,69 +213,112 @@
     <!-- ================= 2. ส่วนของผู้บริหาร (ADMIN AREA) ================= -->
     <div id="section-admin" class="hidden space-y-6">
 
-      <!-- Admin Header Bar -->
-      <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 gap-3">
+      <!-- Admin Top Bar -->
+      <div class="flex flex-wrap justify-between items-center bg-white p-4 sm:p-5 rounded-3xl border border-emerald-100 shadow-sm gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-pastelSky-50 text-pastelSky-500 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">โหมดผู้บริหาร (Admin Dashboard)</h3>
+            <span class="text-xs text-mint-600 font-medium"><i class="fa-solid fa-lock mr-1"></i>ระบบตรวจสอบและสถิติภาพรวม</span>
+          </div>
+        </div>
+        
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="font-bold text-slate-800 text-sm">ยินดีต้อนรับ ผู้บริหาร (Admin Mode)</span>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="switchAdminTab('directory')" id="tab-btn-dir" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white">
-            <i class="fa-solid fa-address-book mr-1"></i> ทำเนียบการ์ดครู
+          <button onclick="switchAdminSubView('cards')" id="btn-sub-cards" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-mint-500 text-white transition shadow-sm">
+            <i class="fa-solid fa-address-book mr-1"></i> ทำเนียบบุคลากร
           </button>
-          <button onclick="switchAdminTab('dashboard')" id="tab-btn-dash" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">
-            <i class="fa-solid fa-chart-pie mr-1"></i> Dashboard สถิติ
+          <button onclick="switchAdminSubView('stats')" id="btn-sub-stats" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+            <i class="fa-solid fa-chart-pie mr-1"></i> แผนภูมิและสถิติ
           </button>
-          <button onclick="logoutAdmin()" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 ml-2">
-            ออกจากระบบ
+          <button onclick="logoutAdmin()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 transition border border-rose-100 ml-2">
+            <i class="fa-solid fa-right-from-bracket mr-1"></i> ออก
           </button>
         </div>
       </div>
 
-      <!-- แท็บที่ 1: ทำเนียบบุคลากร (การ์ดครู & แฟ้มประวัติ) -->
-      <div id="admin-tab-directory" class="space-y-6">
-        <!-- Search & Filter -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-col md:flex-row gap-4 items-center justify-between">
+      <!-- สถิติแบบการ์ดพาสเทล 4 ใบ -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- บุคลากรทั้งหมด -->
+        <div class="bg-pastelSky-50/70 p-5 rounded-3xl border border-pastelSky-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-pastelSky-700 uppercase">ครูและบุคลากร</p>
+            <h4 id="stat-total" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4>
+            <span class="text-[11px] text-pastelSky-500 mt-1 block">จากทุกกลุ่มสาระฯ</span>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-white text-pastelSky-500 flex items-center justify-center text-xl shadow-sm">
+            <i class="fa-solid fa-users"></i>
+          </div>
+        </div>
+
+        <!-- ป.โท-เอก -->
+        <div class="bg-mint-50/70 p-5 rounded-3xl border border-mint-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-mint-700 uppercase">วุฒิ ป.โท - เอก</p>
+            <h4 id="stat-postgrad" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4>
+            <span class="text-[11px] text-mint-600 mt-1 block">ระดับสูงกว่า ป.ตรี</span>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-white text-mint-600 flex items-center justify-center text-xl shadow-sm">
+            <i class="fa-solid fa-user-graduate"></i>
+          </div>
+        </div>
+
+        <!-- คศ.2 ขึ้นไป -->
+        <div class="bg-pastelYellow-50/80 p-5 rounded-3xl border border-pastelYellow-200 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-pastelYellow-700 uppercase">คศ.2 ขึ้นไป</p>
+            <h4 id="stat-highstanding" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4>
+            <span class="text-[11px] text-pastelYellow-700 mt-1 block">ชำนาญการขึ้นไป</span>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-white text-pastelYellow-500 flex items-center justify-center text-xl shadow-sm">
+            <i class="fa-solid fa-award"></i>
+          </div>
+        </div>
+
+        <!-- ยังไม่กรอกเลขบัตร -->
+        <div class="bg-rose-50/70 p-5 rounded-3xl border border-rose-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-rose-600 uppercase">ยังไม่กรอกเลขบัตร</p>
+            <h4 id="stat-missing-cid" class="text-3xl font-extrabold text-rose-600 mt-1">0</h4>
+            <span class="text-[11px] text-rose-400 mt-1 block">รออัปเดตข้อมูล</span>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-white text-rose-500 flex items-center justify-center text-xl shadow-sm">
+            <i class="fa-solid fa-circle-exclamation"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- สับเปลี่ยน: 1. ทำเนียบการ์ดครูรายบุคคล -->
+      <div id="admin-view-cards" class="space-y-6">
+        <!-- แถบค้นหา & ตัวกรองกลุ่มสาระ -->
+        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-emerald-100/80 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
           <div class="relative w-full md:w-80">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-            <input type="text" id="admin-search-input" onkeyup="filterAdminCards()" placeholder="ค้นหาชื่อ, ตำแหน่ง, วิชาเอก..." 
-                   class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-400">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+            <input type="text" id="admin-search" oninput="renderAdminCards()" placeholder="ค้นหาชื่อ, ตำแหน่ง, วิชาเอก..." 
+                   class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500">
           </div>
-          <div id="admin-dept-pills" class="flex gap-1.5 overflow-x-auto w-full pb-1 md:pb-0"></div>
+          <!-- แท็บกลุ่มสาระแบบเม็ดยาพาสเทล -->
+          <div id="admin-dept-tabs" class="flex gap-1.5 overflow-x-auto w-full pb-1 md:pb-0 custom-scrollbar"></div>
         </div>
 
-        <!-- Grid การ์ดครู -->
-        <div id="admin-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        <!-- Grid ทำเนียบการ์ดบุคลากร -->
+        <div id="admin-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
       </div>
 
-      <!-- แท็บที่ 2: Dashboard สถิติและกราฟ -->
-      <div id="admin-tab-dashboard" class="hidden space-y-6">
-        <!-- KPI Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <p class="text-xs text-slate-400 font-semibold">จำนวนครูและบุคลากรทั้งหมด</p>
-            <h3 id="stat-total" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
-          </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <p class="text-xs text-slate-400 font-semibold">ระดับ ปริญญาโท - เอก</p>
-            <h3 id="stat-postgrad" class="text-3xl font-extrabold text-indigo-600 mt-1">0</h3>
-          </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <p class="text-xs text-slate-400 font-semibold">วิทยฐานะ คศ.2 ขึ้นไป</p>
-            <h3 id="stat-highstanding" class="text-3xl font-extrabold text-emerald-600 mt-1">0</h3>
-          </div>
+      <!-- สับเปลี่ยน: 2. แผนภูมิและกราฟสรุป -->
+      <div id="admin-view-stats" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-3xl border border-emerald-100 shadow-sm">
+          <h4 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-chart-column text-mint-500"></i> สัดส่วนบุคลากรแยกตามกลุ่มสาระฯ
+          </h4>
+          <div class="h-64"><canvas id="chart-dept"></canvas></div>
         </div>
-
-        <!-- Charts -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="bg-white p-5 rounded-2xl border border-slate-200">
-            <h4 class="font-bold text-slate-700 text-sm mb-4">สัดส่วนครูแยกตามกลุ่มสาระฯ</h4>
-            <div class="h-64"><canvas id="chart-dept"></canvas></div>
-          </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200">
-            <h4 class="font-bold text-slate-700 text-sm mb-4">สัดส่วนตำแหน่ง/วิทยฐานะ</h4>
-            <div class="h-64"><canvas id="chart-pos"></canvas></div>
-          </div>
+        <div class="bg-white p-6 rounded-3xl border border-emerald-100 shadow-sm">
+          <h4 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-pastelSky-400"></i> สัดส่วนตำแหน่งและวิทยฐานะ
+          </h4>
+          <div class="h-64"><canvas id="chart-pos"></canvas></div>
         </div>
       </div>
 
@@ -230,145 +326,212 @@
 
   </main>
 
-  <!-- ================= MODAL: แฟ้มประวัติส่วนบุคคล (Dossier) ================= -->
-  <div id="dossier-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
-      <div class="bg-indigo-950 p-6 text-white relative shrink-0">
-        <button onclick="closeModal()" class="absolute top-4 right-4 text-white/70 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+  <!-- ================= MODAL แฟ้มประวัติบุคลากร (DOSSIER POPUP) ================= -->
+  <div id="modal-dossier" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden border border-emerald-100 animate-in fade-in zoom-in duration-150 flex flex-col max-h-[90vh]">
+      
+      <!-- Top Banner -->
+      <div class="bg-gradient-to-r from-mint-500 via-teal-400 to-pastelSky-400 p-6 text-white relative shrink-0">
+        <button onclick="closeDossierModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
         <div class="flex items-center gap-4">
-          <img id="m-img" src="" class="w-20 h-20 rounded-2xl object-cover ring-2 ring-white/30 bg-white">
+          <img id="m-avatar" src="" class="w-20 h-20 rounded-2xl object-cover ring-4 ring-white/30 bg-white shadow">
           <div>
-            <span id="m-dept" class="text-[10px] bg-indigo-800 text-indigo-200 px-2 py-0.5 rounded-full font-semibold">กลุ่มสาระ-</span>
-            <h3 id="m-name" class="text-xl font-bold mt-1 leading-tight">-</h3>
-            <p id="m-pos" class="text-xs text-indigo-200 mt-0.5">-</p>
+            <span id="m-dept" class="text-[10px] bg-white/20 border border-white/30 px-2.5 py-0.5 rounded-full font-bold">กลุ่มสาระ-</span>
+            <h3 id="m-name" class="text-xl font-bold mt-1 text-white leading-tight">-</h3>
+            <p id="m-pos" class="text-xs text-white/90 mt-0.5">-</p>
           </div>
         </div>
       </div>
-      <div class="p-6 overflow-y-auto space-y-4 text-xs">
-        <div class="bg-slate-50 p-3 rounded-xl grid grid-cols-2 gap-2">
-          <div><span class="text-slate-400 block">เลขบัตรประชาชน:</span><b id="m-cid" class="text-slate-800 font-mono">-</b></div>
-          <div><span class="text-slate-400 block">เลขที่ตำแหน่ง:</span><b id="m-posno" class="text-slate-800 font-mono">-</b></div>
-          <div><span class="text-slate-400 block">วันเกิด:</span><b id="m-birth" class="text-slate-800">-</b></div>
-          <div><span class="text-slate-400 block">วันเกษียณ:</span><b id="m-retire" class="text-rose-600">-</b></div>
+
+      <!-- Dossier Content Body -->
+      <div class="p-6 overflow-y-auto space-y-4 text-xs custom-scrollbar">
+        
+        <!-- ข้อมูลบัตร/วันสำคัญ -->
+        <div class="bg-mint-50/60 p-3.5 rounded-2xl border border-mint-100 grid grid-cols-2 gap-3">
+          <div><span class="text-slate-400 block text-[11px]">เลขประจำตัวประชาชน:</span><b id="m-cid" class="text-slate-700 font-mono text-xs">-</b></div>
+          <div><span class="text-slate-400 block text-[11px]">เลขที่ตำแหน่ง:</span><b id="m-posno" class="text-slate-700 font-mono text-xs">-</b></div>
+          <div><span class="text-slate-400 block text-[11px]">วันเกิด:</span><b id="m-birth" class="text-slate-700">-</b></div>
+          <div><span class="text-slate-400 block text-[11px]">วันเกษียณอายุ:</span><b id="m-retire" class="text-rose-500">-</b></div>
         </div>
-        <div class="border-t pt-3">
-          <h5 class="font-bold text-slate-800 mb-2">การศึกษาและวิชาเอก</h5>
-          <p><span class="text-slate-400">ระดับสูงสุด:</span> <b id="m-edu">-</b> (<span id="m-degree">-</span>)</p>
-          <p class="mt-1"><span class="text-slate-400">วิชาเอก:</span> <b id="m-major" class="text-indigo-900">-</b></p>
+
+        <!-- คุณวุฒิ -->
+        <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/60 space-y-1.5">
+          <h5 class="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+            <i class="fa-solid fa-graduation-cap text-mint-500"></i> คุณวุฒิการศึกษา
+          </h5>
+          <p><span class="text-slate-400">ระดับสูงสุด:</span> <b id="m-edu" class="text-slate-700">-</b> (<span id="m-degree">-</span>)</p>
+          <p><span class="text-slate-400">วิชาเอก:</span> <b id="m-major" class="text-teal-700">-</b></p>
         </div>
-        <div class="border-t pt-3">
-          <h5 class="font-bold text-slate-800 mb-2">ใบประกอบวิชาชีพ & เครื่องราชฯ</h5>
-          <p><span class="text-slate-400">เลขที่ใบอนุญาต:</span> <b id="m-license" class="font-mono">-</b> (หมดอายุ: <span id="m-exp">-</span>)</p>
-          <p class="mt-1"><span class="text-slate-400">เครื่องราชฯ:</span> <b id="m-insignia">-</b></p>
+
+        <!-- ใบประกอบวิชาชีพ & เครื่องราชฯ -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-3 rounded-2xl border border-slate-100 bg-slate-50/60">
+            <span class="text-slate-400 text-[10px] block mb-1"><i class="fa-solid fa-id-badge text-pastelSky-500 mr-1"></i>ใบประกอบวิชาชีพ</span>
+            <p id="m-license" class="font-mono font-bold text-slate-700">-</p>
+            <span class="text-[10px] text-slate-400 mt-1 block">หมดอายุ: <b id="m-exp" class="text-slate-600">-</b></span>
+          </div>
+          <div class="p-3 rounded-2xl border border-slate-100 bg-slate-50/60">
+            <span class="text-slate-400 text-[10px] block mb-1"><i class="fa-solid fa-medal text-pastelYellow-500 mr-1"></i>เครื่องราชอิสริยาภรณ์</span>
+            <p id="m-insignia" class="font-semibold text-slate-700">-</p>
+          </div>
         </div>
-        <div class="border-t pt-3">
-          <h5 class="font-bold text-slate-800 mb-2">ข้อมูลติดต่อ</h5>
-          <p><i class="fa-solid fa-phone text-emerald-600 mr-1"></i> <span id="m-phone">-</span></p>
-          <p class="mt-1"><i class="fa-solid fa-envelope text-indigo-600 mr-1"></i> <span id="m-email">-</span></p>
+
+        <!-- ข้อมูลติดต่อ -->
+        <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row justify-between gap-2">
+          <div><i class="fa-solid fa-phone text-mint-500 mr-1.5"></i> <span id="m-phone" class="font-mono text-slate-700">-</span></div>
+          <div><i class="fa-solid fa-envelope text-pastelSky-500 mr-1.5"></i> <span id="m-email" class="text-slate-700">-</span></div>
         </div>
+
       </div>
     </div>
   </div>
 
   <script>
-    // ** 1. ใส่ Web App URL ของ Apps Script ที่นี่ **
+    // ** 1. ใส่ Web App URL ของคุณที่นี่ **
     const API_URL = "https://script.google.com/macros/s/AKfycbwpQxGSvcBVSO5PzVI3HWaz02b0I2XL5uL6k0tpncSwIfiiPDd2NbC8T4qxBkknAb8M/exec";
 
     // ** 2. รหัสผ่านผู้บริหาร **
     const ADMIN_PASSCODE = "bspwit";
 
-    let allTeachers = [];
-    let isAdmin = false;
-    let selectedAdminDept = "ทั้งหมด";
-    let base64Image = null;
+    let rawTeacherList = [];
+    let isAdminUnlocked = false;
+    let selectedDeptFilter = "ทั้งหมด";
+    let activeAvatarBase64 = null;
     let chartDept = null;
     let chartPos = null;
 
-    window.addEventListener('DOMContentLoaded', loadData);
+    // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+    window.addEventListener('DOMContentLoaded', loadSystemData);
 
-    async function loadData() {
-      Swal.fire({ title: 'กำลังโหลดข้อมูล...', didOpen: () => Swal.showLoading() });
+    async function loadSystemData() {
+      Swal.fire({
+        title: 'กำลังเชื่อมต่อฐานข้อมูล...',
+        text: 'กรุณารอสักครู่',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
       try {
         const res = await fetch(`${API_URL}?action=getAll`);
         const json = await res.json();
         Swal.close();
+
         if (json.success) {
-          allTeachers = json.data;
-          populateTeacherDropdowns();
+          rawTeacherList = json.data;
+          setupNameDropdown();
         }
       } catch (err) {
         Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อ Google Sheets ได้', 'error');
       }
     }
 
-    // ================= โซนของคุณครู (Dropdowns) =================
-    function populateTeacherDropdowns() {
-      const depts = [...new Set(allTeachers.map(t => t._sheetName))];
-      const deptSelect = document.getElementById('teacher-select-dept');
-      deptSelect.innerHTML = `<option value="">-- เลือกกลุ่มสาระ --</option>` + 
-        depts.map(d => `<option value="${d}">${d}</option>`).join('');
+    // ================= โซนล็อกอินสำหรับคุณครู =================
+    function setLoginMethod(method) {
+      if (method === 'cid') {
+        document.getElementById('login-by-cid').classList.remove('hidden');
+        document.getElementById('login-by-name').classList.add('hidden');
+        document.getElementById('tab-btn-cid').className = "flex-1 py-2 text-xs font-semibold rounded-xl transition bg-white text-emerald-700 shadow-sm";
+        document.getElementById('tab-btn-name').className = "flex-1 py-2 text-xs font-semibold rounded-xl transition text-slate-500 hover:text-slate-800";
+      } else {
+        document.getElementById('login-by-cid').classList.add('hidden');
+        document.getElementById('login-by-name').classList.remove('hidden');
+        document.getElementById('tab-btn-name').className = "flex-1 py-2 text-xs font-semibold rounded-xl transition bg-white text-emerald-700 shadow-sm";
+        document.getElementById('tab-btn-cid').className = "flex-1 py-2 text-xs font-semibold rounded-xl transition text-slate-500 hover:text-slate-800";
+      }
     }
 
-    function onDeptSelected() {
-      const dept = document.getElementById('teacher-select-dept').value;
-      const nameSelect = document.getElementById('teacher-select-name');
-      if (!dept) {
-        nameSelect.disabled = true;
-        nameSelect.innerHTML = `<option value="">-- รอเลือกกลุ่มสาระก่อน --</option>`;
-        document.getElementById('teacher-form-wrapper').classList.add('hidden');
+    // เติมรายชื่อลง Dropdown (สำหรับวิธีที่ 2)
+    function setupNameDropdown(filterText = '') {
+      const select = document.getElementById('select-teacher-name');
+      const filtered = rawTeacherList.filter(t => (t["ชื่อ-นามสกุล"] || '').toLowerCase().includes(filterText.toLowerCase()));
+      
+      select.innerHTML = `<option value="">-- กรุณาเลือกชื่อของคุณ (${filtered.length} รายการ) --</option>` + 
+        filtered.map(t => `<option value="${t._rowIndex}_${t._sheetName}">${t["ชื่อ-นามสกุล"]} (${t._sheetName})</option>`).join('');
+    }
+
+    function filterNameList() {
+      const q = document.getElementById('input-name-filter').value;
+      setupNameDropdown(q);
+    }
+
+    // ครูล็อกอินด้วยเลขบัตร
+    function loginWithCid() {
+      const cid = document.getElementById('input-cid').value.trim();
+      if (cid.length !== 13) {
+        Swal.fire('แจ้งเตือน', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
         return;
       }
-      const teachersInDept = allTeachers.filter(t => t._sheetName === dept);
-      nameSelect.disabled = false;
-      nameSelect.innerHTML = `<option value="">-- เลือกชื่อของคุณ --</option>` + 
-        teachersInDept.map(t => `<option value="${t["ชื่อ-นามสกุล"]}">${t["ชื่อ-นามสกุล"]} (${t["ตำแหน่ง"]||"ครู"})</option>`).join('');
-    }
-
-    function onNameSelected() {
-      const dept = document.getElementById('teacher-select-dept').value;
-      const name = document.getElementById('teacher-select-name').value;
-      if (!name) return;
-
-      const t = allTeachers.find(item => item._sheetName === dept && item["ชื่อ-นามสกุล"] === name);
-      if (t) {
-        document.getElementById('f-sheet').value = t._sheetName;
-        document.getElementById('f-row').value = t._rowIndex;
-        document.getElementById('form-dept-label').innerText = t._sheetName;
-        document.getElementById('form-name-label').innerText = t["ชื่อ-นามสกุล"];
-        document.getElementById('form-pos-label').innerText = `ตำแหน่ง: ${t["ตำแหน่ง"]||"-"}`;
-        document.getElementById('form-img-preview').src = t["รูปถ่าย"] || 'https://via.placeholder.com/150';
-
-        document.getElementById('f-cid').value = t["เลขที่บัตรประชาชน"] || '';
-        document.getElementById('f-name').value = t["ชื่อ-นามสกุล"] || '';
-        document.getElementById('f-birth').value = t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '';
-        document.getElementById('f-phone').value = t["เบอร์โทร"] || '';
-        document.getElementById('f-email').value = t["e-mail (ที่ไม่ใช่เมลล์ รร.)"] || '';
-        document.getElementById('f-education').value = t["การศึกษาสูงสุด"] || 'ปริญญาตรี';
-        document.getElementById('f-degree').value = t["วุฒิการศึกษา"] || '';
-        document.getElementById('f-major').value = t["วิชาเอก [กรณีจบ ป.โท/เอก ให้เพิ่มเอกโดยใส่หมายเลข 1)...2)...3)...]"] || '';
-        document.getElementById('f-license-no').value = t["เลขที่ใบประกอบวิชาชีพ"] || '';
-        document.getElementById('f-license-exp').value = t["วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)"] || '';
-
-        document.getElementById('teacher-form-wrapper').classList.remove('hidden');
+      const match = rawTeacherList.find(t => String(t["เลขที่บัตรประชาชน"]).replace(/\D/g, '') === cid);
+      if (match) {
+        openProfileEditor(match);
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'ไม่พบเลขบัตรในระบบ',
+          text: 'หากท่านยังไม่เคยกรอกเลขบัตรประชาชน กรุณาเลือกแท็บ "ไม่มีเลขบัตร (ค้นด้วยชื่อ)" เพื่อค้นหาชื่อและเข้าไปกรอกเลขบัตรได้ครับ'
+        });
       }
     }
 
-    function handleImageChange(e) {
+    // ครูล็อกอินด้วยการเลือกชื่อ
+    function loginWithName() {
+      const val = document.getElementById('select-teacher-name').value;
+      if (!val) {
+        Swal.fire('แจ้งเตือน', 'กรุณาเลือกชื่อของคุณจากรายการ', 'warning');
+        return;
+      }
+      const [rowIndex, sheetName] = val.split('_');
+      const match = rawTeacherList.find(t => String(t._rowIndex) === rowIndex && t._sheetName === sheetName);
+      if (match) {
+        openProfileEditor(match);
+      }
+    }
+
+    // โหลดข้อมูลเข้าฟอร์มแก้ไข
+    function openProfileEditor(t) {
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('f-sheet').value = t._sheetName;
+      document.getElementById('f-row').value = t._rowIndex;
+
+      document.getElementById('label-dept').innerText = t._sheetName;
+      document.getElementById('label-name').innerText = t["ชื่อ-นามสกุล"];
+      document.getElementById('label-pos').innerText = `ตำแหน่ง: ${t["ตำแหน่ง"] || '-'} (เลขที่ ${t["เลขที่ตำแหน่ง"] || '-'})`;
+      document.getElementById('form-avatar').src = t["รูปถ่าย"] || 'https://via.placeholder.com/150';
+
+      document.getElementById('f-cid').value = t["เลขที่บัตรประชาชน"] || '';
+      document.getElementById('f-name').value = t["ชื่อ-นามสกุล"] || '';
+      document.getElementById('f-birth').value = t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '';
+      document.getElementById('f-phone').value = t["เบอร์โทร"] || '';
+      document.getElementById('f-email').value = t["e-mail (ที่ไม่ใช่เมลล์ รร.)"] || '';
+      document.getElementById('f-edu').value = t["การศึกษาสูงสุด"] || 'ปริญญาตรี';
+      document.getElementById('f-degree').value = t["วุฒิการศึกษา"] || '';
+      document.getElementById('f-major').value = t["วิชาเอก [กรณีจบ ป.โท/เอก ให้เพิ่มเอกโดยใส่หมายเลข 1)...2)...3)...]"] || '';
+      document.getElementById('f-license').value = t["เลขที่ใบประกอบวิชาชีพ"] || '';
+      document.getElementById('f-license-exp').value = t["วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)"] || '';
+
+      document.getElementById('profile-editor-card').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function previewAvatar(e) {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = (evt) => {
-          document.getElementById('form-img-preview').src = evt.target.result;
-          base64Image = evt.target.result;
+          document.getElementById('form-avatar').src = evt.target.result;
+          activeAvatarBase64 = evt.target.result;
         };
         reader.readAsDataURL(file);
       }
     }
 
-    async function saveTeacherData(e) {
+    // บันทึกข้อมูล
+    async function saveProfileData(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-save');
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูลเข้า Google Sheets...`;
       btn.disabled = true;
 
       const payload = {
@@ -381,12 +544,12 @@
           "วันเกิด (วัน/เดือน/ปี พ.ศ.)": document.getElementById('f-birth').value,
           "เบอร์โทร": document.getElementById('f-phone').value,
           "e-mail (ที่ไม่ใช่เมลล์ รร.)": document.getElementById('f-email').value,
-          "การศึกษาสูงสุด": document.getElementById('f-education').value,
+          "การศึกษาสูงสุด": document.getElementById('f-edu').value,
           "วุฒิการศึกษา": document.getElementById('f-degree').value,
           "วิชาเอก [กรณีจบ ป.โท/เอก ให้เพิ่มเอกโดยใส่หมายเลข 1)...2)...3)...]": document.getElementById('f-major').value,
-          "เลขที่ใบประกอบวิชาชีพ": document.getElementById('f-license-no').value,
+          "เลขที่ใบประกอบวิชาชีพ": document.getElementById('f-license').value,
           "วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)": document.getElementById('f-license-exp').value,
-          "imageBase64": base64Image,
+          "imageBase64": activeAvatarBase64,
           "imageMimeType": "image/jpeg"
         }
       };
@@ -395,141 +558,170 @@
         const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
         const json = await res.json();
         if (json.success) {
-          Swal.fire('บันทึกสำเร็จ!', 'ข้อมูลของท่านได้รับการอัปเดตลงในระบบแล้ว', 'success');
-          loadData();
+          Swal.fire({
+            icon: 'success',
+            title: 'บันทึกสำเร็จ!',
+            text: 'ข้อมูลของท่านได้รับการอัปเดตลง Google Sheets เรียบร้อยแล้ว',
+            confirmButtonColor: '#10B981'
+          });
+          loadSystemData();
         } else {
           Swal.fire('เกิดข้อผิดพลาด', json.message, 'error');
         }
       } catch (err) {
-        Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+        Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่อบันทึกข้อมูลได้', 'error');
       } finally {
-        btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลเข้า Google Sheets`;
+        btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลและส่งเข้า Google Sheet ทันที`;
         btn.disabled = false;
       }
     }
 
-    // ================= โซนของผู้บริหาร (ADMIN) =================
-    async function handleAdminAccess() {
-      if (isAdmin) {
-        switchMode('admin');
+    // ================= โซนของผู้บริหาร (ADMIN AREA) =================
+    async function handleAdminLogin() {
+      if (isAdminUnlocked) {
+        switchMainTab('admin');
         return;
       }
       const { value: pass } = await Swal.fire({
-        title: 'ยืนยันรหัสผ่านผู้บริหาร',
+        title: 'ระบบรักษาความปลอดภัย',
+        text: 'กรุณากรอกรหัสผ่านสำหรับผู้บริหาร',
         input: 'password',
-        inputPlaceholder: 'กรอกรหัสผ่าน Admin...',
+        inputPlaceholder: 'กรอกรหัสผ่าน...',
         showCancelButton: true,
         confirmButtonText: 'เข้าสู่ระบบ',
-        cancelButtonText: 'ยกเลิก'
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#10B981'
       });
       if (pass === ADMIN_PASSCODE) {
-        isAdmin = true;
-        switchMode('admin');
-        initAdminView();
+        isAdminUnlocked = true;
+        switchMainTab('admin');
+        setupAdminDashboard();
       } else if (pass) {
         Swal.fire('รหัสผ่านไม่ถูกต้อง', 'เฉพาะผู้บริหารที่ได้รับอนุญาตเท่านั้น', 'error');
       }
     }
 
     function logoutAdmin() {
-      isAdmin = false;
-      switchMode('teacher');
+      isAdminUnlocked = false;
+      switchMainTab('teacher');
     }
 
-    function initAdminView() {
+    function setupAdminDashboard() {
       renderAdminDeptPills();
-      filterAdminCards();
-      renderDashboardStats();
-    }
-
-    function switchAdminTab(tab) {
-      if (tab === 'directory') {
-        document.getElementById('admin-tab-directory').classList.remove('hidden');
-        document.getElementById('admin-tab-dashboard').classList.add('hidden');
-        document.getElementById('tab-btn-dir').className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white";
-        document.getElementById('tab-btn-dash').className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600";
-      } else {
-        document.getElementById('admin-tab-directory').classList.add('hidden');
-        document.getElementById('admin-tab-dashboard').classList.remove('hidden');
-        document.getElementById('tab-btn-dash').className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white";
-        document.getElementById('tab-btn-dir').className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600";
-      }
+      renderAdminCards();
+      renderAdminStats();
     }
 
     function renderAdminDeptPills() {
-      const depts = ["ทั้งหมด", ...new Set(allTeachers.map(t => t._sheetName))];
-      const pills = document.getElementById('admin-dept-pills');
-      pills.innerHTML = depts.map(d => `
-        <button onclick="setAdminDept('${d}')" class="shrink-0 px-3 py-1 rounded-lg text-xs font-semibold transition ${d === selectedAdminDept ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+      const depts = ["ทั้งหมด", ...new Set(rawTeacherList.map(t => t._sheetName))];
+      const container = document.getElementById('admin-dept-tabs');
+      container.innerHTML = depts.map(d => `
+        <button onclick="setAdminDept('${d}')" class="shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${d === selectedDeptFilter ? 'bg-mint-500 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
           ${d}
         </button>
       `).join('');
     }
 
     function setAdminDept(dept) {
-      selectedAdminDept = dept;
+      selectedDeptFilter = dept;
       renderAdminDeptPills();
-      filterAdminCards();
+      renderAdminCards();
     }
 
-    function filterAdminCards() {
-      const q = document.getElementById('admin-search-input').value.toLowerCase();
-      const list = allTeachers.filter(t => {
-        const matchDept = selectedAdminDept === "ทั้งหมด" || t._sheetName === selectedAdminDept;
-        const name = (t["ชื่อ-นามสกุล"] || "").toLowerCase();
-        const pos = (t["ตำแหน่ง"] || "").toLowerCase();
-        return matchDept && (!q || name.includes(q) || pos.includes(q));
+    function renderAdminCards() {
+      const q = document.getElementById('admin-search').value.toLowerCase().trim();
+      const list = rawTeacherList.filter(t => {
+        const matchDept = selectedDeptFilter === "ทั้งหมด" || t._sheetName === selectedDeptFilter;
+        const name = (t["ชื่อ-นามสกุล"] || '').toLowerCase();
+        const pos = (t["ตำแหน่ง"] || '').toLowerCase();
+        const major = (t["วิชาเอก [กรณีจบ ป.โท/เอก ให้เพิ่มเอกโดยใส่หมายเลข 1)...2)...3)...]"] || '').toLowerCase();
+        return matchDept && (!q || name.includes(q) || pos.includes(q) || major.includes(q));
       });
 
-      const grid = document.getElementById('admin-cards-grid');
-      grid.innerHTML = list.map(t => `
-        <div onclick='openModal(${JSON.stringify(t)})' class="bg-white p-4 rounded-2xl border border-slate-200 hover:shadow-lg transition cursor-pointer flex flex-col items-center text-center group">
-          <img src="${t["รูปถ่าย"] || 'https://via.placeholder.com/150'}" class="w-20 h-20 rounded-xl object-cover ring-2 ring-slate-100 group-hover:ring-indigo-300 transition mb-2">
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 mb-1">${t._sheetName}</span>
-          <h4 class="font-bold text-xs group-hover:text-indigo-600 transition truncate w-full">${t["ชื่อ-นามสกุล"]}</h4>
-          <p class="text-[11px] text-slate-400">${t["ตำแหน่ง"]||'ครู'}</p>
-        </div>
-      `).join('');
+      const container = document.getElementById('admin-cards-container');
+      container.innerHTML = list.map(t => {
+        const hasCid = !!t["เลขที่บัตรประชาชน"];
+        return `
+        <div onclick='openDossier(${JSON.stringify(t)})' class="bg-white rounded-3xl p-5 border border-emerald-100/80 shadow-sm hover:shadow-xl hover:border-mint-300 transition duration-300 cursor-pointer flex flex-col items-center text-center relative group">
+          <div class="relative w-24 h-24 mb-3">
+            <img src="${t["รูปถ่าย"] || 'https://via.placeholder.com/150'}" class="w-full h-full rounded-2xl object-cover ring-4 ring-slate-50 group-hover:ring-mint-100 transition shadow-sm bg-slate-50">
+            ${!hasCid ? `<span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-rose-500 border-2 border-white rounded-full" title="ยังไม่มีเลขบัตร"></span>` : ''}
+          </div>
+          <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-mint-50 text-mint-700 border border-mint-200/60 mb-2">${t._sheetName}</span>
+          <h4 class="font-bold text-sm text-slate-800 group-hover:text-mint-600 transition truncate w-full">${t["ชื่อ-นามสกุล"]}</h4>
+          <p class="text-xs text-slate-400 mt-0.5">${t["ตำแหน่ง"] || 'ครูผู้สอน'}</p>
+          <div class="mt-4 pt-3 border-t border-slate-100 w-full flex justify-between text-[11px] text-slate-400">
+            <span>วุฒิ ${t["วุฒิการศึกษา"] || '-'}</span>
+            <span class="text-mint-600 font-semibold flex items-center gap-1">ดูแฟ้ม <i class="fa-solid fa-angle-right text-[10px]"></i></span>
+          </div>
+        </div>`;
+      }).join('');
     }
 
-    function renderDashboardStats() {
-      document.getElementById('stat-total').innerText = allTeachers.length;
+    function renderAdminStats() {
+      document.getElementById('stat-total').innerText = rawTeacherList.length;
       let postGrad = 0;
       let highStand = 0;
-      const deptCount = {};
-      const posCount = {};
+      let missingCid = 0;
+      const depts = {};
+      const positions = {};
 
-      allTeachers.forEach(t => {
-        deptCount[t._sheetName] = (deptCount[t._sheetName] || 0) + 1;
-        const pos = t["ตำแหน่ง"] || 'ไม่ระบุ';
-        posCount[pos] = (posCount[pos] || 0) + 1;
-        if ((t["การศึกษาสูงสุด"] || '').includes('โท') || (t["การศึกษาสูงสุด"] || '').includes('เอก')) postGrad++;
-        if (pos.includes('คศ.2') || pos.includes('คศ.3') || pos.includes('ชำนาญการ')) highStand++;
+      rawTeacherList.forEach(t => {
+        depts[t._sheetName] = (depts[t._sheetName] || 0) + 1;
+        const p = t["ตำแหน่ง"] || 'ไม่ระบุ';
+        positions[p] = (positions[p] || 0) + 1;
+
+        if (!t["เลขที่บัตรประชาชน"]) missingCid++;
+        const edu = t["การศึกษาสูงสุด"] || '';
+        if (edu.includes("โท") || edu.includes("เอก")) postGrad++;
+        if (p.includes("คศ.2") || p.includes("คศ.3") || p.includes("ชำนาญการ")) highStand++;
       });
 
       document.getElementById('stat-postgrad').innerText = postGrad;
       document.getElementById('stat-highstanding').innerText = highStand;
+      document.getElementById('stat-missing-cid').innerText = missingCid;
 
       if (chartDept) chartDept.destroy();
       chartDept = new Chart(document.getElementById('chart-dept'), {
         type: 'bar',
-        data: { labels: Object.keys(deptCount), datasets: [{ label: 'จำนวน (คน)', data: Object.values(deptCount), backgroundColor: '#4f46e5', borderRadius: 6 }] },
+        data: {
+          labels: Object.keys(depts),
+          datasets: [{ label: 'จำนวน (คน)', data: Object.values(depts), backgroundColor: '#34D399', borderRadius: 8 }]
+        },
         options: { responsive: true, maintainAspectRatio: false }
       });
 
       if (chartPos) chartPos.destroy();
       chartPos = new Chart(document.getElementById('chart-pos'), {
         type: 'doughnut',
-        data: { labels: Object.keys(posCount), datasets: [{ data: Object.values(posCount), backgroundColor: ['#0284c7','#10b981','#f59e0b','#ec4899','#8b5cf6'] }] },
+        data: {
+          labels: Object.keys(positions),
+          datasets: [{ data: Object.values(positions), backgroundColor: ['#38BDF8','#34D399','#FACC15','#F472B6','#A78BFA','#94A3B8'] }]
+        },
         options: { responsive: true, maintainAspectRatio: false }
       });
     }
 
-    function openModal(t) {
-      document.getElementById('m-img').src = t["รูปถ่าย"] || 'https://via.placeholder.com/150';
+    function switchAdminSubView(view) {
+      if (view === 'cards') {
+        document.getElementById('admin-view-cards').classList.remove('hidden');
+        document.getElementById('admin-view-stats').classList.add('hidden');
+        document.getElementById('btn-sub-cards').className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-mint-500 text-white transition shadow-sm";
+        document.getElementById('btn-sub-stats').className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
+      } else {
+        document.getElementById('admin-view-cards').classList.add('hidden');
+        document.getElementById('admin-view-stats').classList.remove('hidden');
+        document.getElementById('btn-sub-stats').className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-mint-500 text-white transition shadow-sm";
+        document.getElementById('btn-sub-cards').className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
+      }
+    }
+
+    // ================= MODAL แฟ้มประวัติ =================
+    function openDossier(t) {
+      document.getElementById('m-avatar').src = t["รูปถ่าย"] || 'https://via.placeholder.com/150';
       document.getElementById('m-dept').innerText = t._sheetName;
       document.getElementById('m-name').innerText = t["ชื่อ-นามสกุล"];
-      document.getElementById('m-pos').innerText = `${t["ตำแหน่ง"]||'-'} | เลขที่ ${t["เลขที่ตำแหน่ง"]||'-'}`;
+      document.getElementById('m-pos').innerText = `${t["ตำแหน่ง"] || '-'} (เลขที่ ${t["เลขที่ตำแหน่ง"] || '-'})`;
       document.getElementById('m-cid').innerText = t["เลขที่บัตรประชาชน"] || 'ยังไม่มีข้อมูล';
       document.getElementById('m-posno').innerText = t["เลขที่ตำแหน่ง"] || '-';
       document.getElementById('m-birth').innerText = t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '-';
@@ -542,24 +734,26 @@
       document.getElementById('m-insignia').innerText = t["เครื่องราชอิสริยาภรณ์ที่เคยได้รับ"] || 'ยังไม่ได้รับ';
       document.getElementById('m-phone').innerText = t["เบอร์โทร"] || '-';
       document.getElementById('m-email').innerText = t["e-mail (ที่ไม่ใช่เมลล์ รร.)"] || '-';
-      document.getElementById('dossier-modal').classList.remove('hidden');
+
+      document.getElementById('modal-dossier').classList.remove('hidden');
     }
 
-    function closeModal() {
-      document.getElementById('dossier-modal').classList.add('hidden');
+    function closeDossierModal() {
+      document.getElementById('modal-dossier').classList.add('hidden');
     }
 
-    function switchMode(mode) {
+    // สลับโหมด ครู / แอดมิน
+    function switchMainTab(mode) {
       if (mode === 'teacher') {
         document.getElementById('section-teacher').classList.remove('hidden');
         document.getElementById('section-admin').classList.add('hidden');
-        document.getElementById('btn-mode-teacher').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition bg-indigo-600 text-white";
-        document.getElementById('btn-mode-admin').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 border border-indigo-700/50";
+        document.getElementById('btn-tab-teacher').className = "px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-mint-500 text-white shadow-sm shadow-mint-500/20";
+        document.getElementById('btn-tab-admin').className = "px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-50";
       } else {
         document.getElementById('section-teacher').classList.add('hidden');
         document.getElementById('section-admin').classList.remove('hidden');
-        document.getElementById('btn-mode-admin').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition bg-indigo-600 text-white";
-        document.getElementById('btn-mode-teacher').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 border border-indigo-700/50";
+        document.getElementById('btn-tab-admin').className = "px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-mint-500 text-white shadow-sm shadow-mint-500/20";
+        document.getElementById('btn-tab-teacher').className = "px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-50";
       }
     }
   </script>
