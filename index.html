@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ระบบสารสนเทศและแฟ้มประวัติบุคลากรครู</title>
+  
   <!-- ตราเว็บ (Favicon) -->
   <link rel="icon" type="image/png" href="https://s.imgz.io/2026/10/06/-20d6960fcc2c693ae6.png">
   <link rel="apple-touch-icon" href="https://s.imgz.io/2026/10/06/-20d6960fcc2c693ae6.png">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -93,30 +95,32 @@
         <!-- ฟอร์ม: เลขบัตร -->
         <div id="login-by-cid" class="max-w-md mx-auto space-y-3">
           <input type="text" id="input-cid" maxlength="13" placeholder="กรอกเลขบัตรประชาชน 13 หลัก" 
+                 onkeypress="if(event.key === 'Enter') loginWithCid()"
                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-center text-lg font-mono tracking-widest focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition">
           <button onclick="loginWithCid()" class="w-full py-3 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-arrow-right-to-bracket"></i> เปิดแฟ้มข้อมูลของฉัน
           </button>
         </div>
 
-        <!-- โค้ดใหม่ (พิมพ์ชื่ออย่างเดียว ปลอดภัย ไม่เห็นชื่อคนอื่น) -->
+        <!-- ฟอร์ม: ชื่อ-สกุล (ไม่มี Dropdown ปลอดภัย ไม่เห็นชื่อคนอื่น) -->
         <div id="login-by-name" class="hidden max-w-md mx-auto space-y-3">
           <div>
-            <label class="text-xs font-bold text-slate-600 mb-1 block">พิมพ์ชื่อ - นามสกุลของคุณ:</label>
+            <label class="text-xs font-bold text-slate-600 mb-1 block text-center">พิมพ์ชื่อ หรือ นามสกุลของคุณ:</label>
             <input type="text" id="input-search-name" placeholder="เช่น กิจจา หรือ นวพร หรือ กิจหวจน" 
                    onkeypress="if(event.key === 'Enter') loginByNameSearch()"
                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition text-center font-medium">
-            <p class="text-[11px] text-slate-400 mt-1.5 text-center">*พิมพ์ชื่อ หรือ นามสกุล เพื่อเปิดแฟ้มประวัติของคุณ</p>
+            <p class="text-[11px] text-slate-400 mt-1.5 text-center">*พิมพ์ชื่อ หรือ นามสกุล แล้วกดค้นหา</p>
           </div>
           <button onclick="loginByNameSearch()" class="w-full py-3 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-magnifying-glass"></i> ค้นหาและเปิดแฟ้มข้อมูล
           </button>
         </div>
+      </div>
 
       <!-- ฟอร์มแก้ไขข้อมูล -->
       <div id="profile-editor-card" class="hidden bg-white rounded-3xl shadow-sm border border-mint-100 overflow-hidden">
         
-        <!-- Header โปรไฟล์ + ปุ่มออกจากระบบ -->
+        <!-- Header โปรไฟล์ -->
         <div class="bg-gradient-to-r from-mint-500 via-mint-600 to-pastelYellow-500 p-6 sm:p-8 text-white relative">
           <button onclick="logoutTeacher()" type="button" class="absolute top-4 right-4 px-3.5 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-semibold backdrop-blur-sm transition flex items-center gap-1.5 border border-white/20">
             <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
@@ -146,7 +150,7 @@
           <input type="hidden" id="f-sheet">
           <input type="hidden" id="f-row">
 
-          <!-- กล่องแจ้งเตือนสถานะใบประกอบวิชาชีพของครูท่านนี้ -->
+          <!-- กล่องแจ้งเตือนสถานะใบประกอบวิชาชีพของครู -->
           <div id="teacher-license-alert-box" class="hidden p-4 rounded-2xl border transition flex items-center gap-3">
             <div id="teacher-license-alert-icon" class="text-2xl shrink-0"></div>
             <div>
@@ -165,7 +169,7 @@
                    class="w-full p-3 bg-white border border-pastelYellow-200 rounded-xl font-mono text-base tracking-widest focus:ring-2 focus:ring-pastelYellow-400 outline-none">
           </div>
 
-          <!-- 2. ข้อมูลส่วนตัว, ตำแหน่ง, วันที่บรรจุ/เริ่มสัญญาจ้าง (แก้ไขได้อิสระ) -->
+          <!-- 2. ข้อมูลส่วนตัว & วันเกิด (อายุคำนวณอัตโนมัติ) -->
           <div>
             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <i class="fa-solid fa-user text-mint-500"></i> ข้อมูลส่วนตัว ตำแหน่ง และอายุ
@@ -176,7 +180,6 @@
                 <input type="text" id="f-name" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
               </div>
 
-              <!-- วันเกิด + อายุอัตโนมัติ (อายุห้ามแก้) -->
               <div>
                 <div class="flex justify-between items-center mb-1">
                   <label class="text-xs font-semibold text-slate-600">วันเกิด (วัน / เดือน / ปี พ.ศ.) <span class="text-rose-500">*</span></label>
@@ -189,15 +192,13 @@
                 </div>
               </div>
 
-              <!-- วันที่บรรจุ / วันเริ่มสัญญาจ้าง (แก้ไขได้แล้ว) -->
               <div>
                 <label id="lbl-appoint-date" class="text-xs font-semibold text-slate-600">วันที่บรรจุ / วันเริ่มสัญญาจ้าง</label>
                 <input type="text" id="f-appoint-date" placeholder="เช่น 01/05/2565" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none focus:ring-2 focus:ring-mint-500/20">
               </div>
 
-              <!-- ตำแหน่ง / วิทยฐานะ (แก้ไขได้อิสระ ทั้งครูและลูกจ้าง) -->
               <div>
-                <label id="lbl-position" class="text-xs font-semibold text-slate-600">ตำแหน่ง / วิทยฐานะ (พิมพ์ระบุได้เอง)</label>
+                <label class="text-xs font-semibold text-slate-600">ตำแหน่ง / วิทยฐานะ (พิมพ์ระบุได้เอง)</label>
                 <input type="text" id="f-position" placeholder="เช่น ครูผู้ช่วย, คศ.1 หรือ ภารโรง, แม่บ้าน, ธุรการ" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none focus:ring-2 focus:ring-mint-500/20">
               </div>
 
@@ -391,10 +392,10 @@
         <div id="admin-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
       </div>
 
-      <!-- สับเปลี่ยน: 2. แผนภูมิสถิติ (กราฟอยู่ด้านบน -> ตารางอยู่ด้านล่าง) -->
+      <!-- สับเปลี่ยน: 2. แผนภูมิสถิติ (กราฟอยู่บน -> ตารางอยู่ล่าง) -->
       <div id="admin-view-stats" class="hidden space-y-6">
         
-        <!-- 1. กราฟแผนภูมิต่างๆ (ย้ายมาอยู่ด้านบนสุดตามต้องการ) -->
+        <!-- กราฟแผนภูมิ -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="bg-white p-6 rounded-3xl border border-mint-100 shadow-sm">
             <h4 class="font-bold text-slate-800 text-sm mb-4">สัดส่วนบุคลากรแยกตามกลุ่มสาระฯ</h4>
@@ -406,7 +407,7 @@
           </div>
         </div>
 
-        <!-- 2. ตารางแจ้งเตือนใบอนุญาตประกอบวิชาชีพ (อยู่ด้านล่างกราฟ) -->
+        <!-- ตารางแจ้งเตือนใบอนุญาตฯ -->
         <div class="bg-white p-6 rounded-3xl border border-rose-100 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
@@ -525,6 +526,16 @@
     let chartPos = null;
     let cropper = null;
 
+    // ฟังก์ชันช่วยเซฟค่าแบบป้องกันข้อผิดพลาด 100%
+    function safeVal(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.value = (val !== undefined && val !== null) ? val : '';
+    }
+    function safeText(id, txt) {
+      const el = document.getElementById(id);
+      if (el) el.innerText = (txt !== undefined && txt !== null) ? txt : '';
+    }
+
     function handleImgError(image, name) {
       image.onerror = null;
       image.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=DCFCE7&color=15803D&size=300&bold=true`;
@@ -532,24 +543,35 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       initDateDropdowns();
-      loadSystemData(false); // ให้โหลดข้อมูลเตรียมไว้ทันทีที่เปิดเว็บ
+      loadSystemData(false);
     });
 
     function initDateDropdowns() {
       const dSelect = document.getElementById('birth-day');
-      for (let i = 1; i <= 31; i++) {
-        const val = i < 10 ? `0${i}` : `${i}`;
-        dSelect.innerHTML += `<option value="${val}">${val}</option>`;
+      if (dSelect) {
+        dSelect.innerHTML = '<option value="">วัน</option>';
+        for (let i = 1; i <= 31; i++) {
+          const val = i < 10 ? `0${i}` : `${i}`;
+          dSelect.innerHTML += `<option value="${val}">${val}</option>`;
+        }
       }
+
       const mSelect = document.getElementById('birth-month');
-      const thMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-      for (let i = 1; i <= 12; i++) {
-        const val = i < 10 ? `0${i}` : `${i}`;
-        mSelect.innerHTML += `<option value="${val}">${val} (${thMonths[i-1]})</option>`;
+      if (mSelect) {
+        mSelect.innerHTML = '<option value="">เดือน</option>';
+        const thMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        for (let i = 1; i <= 12; i++) {
+          const val = i < 10 ? `0${i}` : `${i}`;
+          mSelect.innerHTML += `<option value="${val}">${val} (${thMonths[i-1]})</option>`;
+        }
       }
+
       const ySelect = document.getElementById('birth-year');
-      for (let y = 2555; y >= 2490; y--) {
-        ySelect.innerHTML += `<option value="${y}">${y}</option>`;
+      if (ySelect) {
+        ySelect.innerHTML = '<option value="">ปี พ.ศ.</option>';
+        for (let y = 2555; y >= 2490; y--) {
+          ySelect.innerHTML += `<option value="${y}">${y}</option>`;
+        }
       }
     }
 
@@ -567,12 +589,12 @@
     }
 
     function autoCalculateAge() {
-      const d = document.getElementById('birth-day').value;
-      const m = document.getElementById('birth-month').value;
-      const y = document.getElementById('birth-year').value;
+      const d = document.getElementById('birth-day')?.value;
+      const m = document.getElementById('birth-month')?.value;
+      const y = document.getElementById('birth-year')?.value;
       const age = calculateAge(d, m, y);
-      document.getElementById('calculated-age-label').innerText = `อายุ: ${age} ปี`;
-      document.getElementById('badge-age').innerText = `อายุ: ${age} ปี`;
+      safeText('calculated-age-label', `อายุ: ${age} ปี`);
+      safeText('badge-age', `อายุ: ${age} ปี`);
     }
 
     function normalizePosition(raw) {
@@ -603,12 +625,9 @@
       return null;
     }
 
-    // ฟังก์ชันตรวจสอบและแสดงแถบแจ้งเตือนในหน้าครู
     function updateTeacherLicenseAlertBox(expDateStr) {
       const box = document.getElementById('teacher-license-alert-box');
-      const icon = document.getElementById('teacher-license-alert-icon');
-      const title = document.getElementById('teacher-license-alert-title');
-      const desc = document.getElementById('teacher-license-alert-desc');
+      if (!box) return;
 
       const expDate = parseLicenseExpDate(expDateStr);
       if (!expDate) {
@@ -618,31 +637,31 @@
 
       const today = new Date();
       const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+      const icon = document.getElementById('teacher-license-alert-icon');
+      const title = document.getElementById('teacher-license-alert-title');
+      const desc = document.getElementById('teacher-license-alert-desc');
 
       box.classList.remove('hidden', 'bg-rose-50', 'border-rose-200', 'text-rose-700', 'bg-amber-50', 'border-amber-200', 'text-amber-700', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-700');
 
       if (diffDays < 0) {
-        // หมดอายุแล้ว
         box.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-700');
-        icon.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500"></i>`;
-        title.innerText = `ใบอนุญาตประกอบวิชาชีพหมดอายุแล้ว! (ผ่านมา ${Math.abs(diffDays)} วัน)`;
-        desc.innerText = `ใบอนุญาตของท่านหมดอายุเมื่อวันที่ ${expDateStr} กรุณาดำเนินการต่ออายุทันที`;
+        if (icon) icon.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500"></i>`;
+        if (title) title.innerText = `ใบอนุญาตประกอบวิชาชีพหมดอายุแล้ว! (ผ่านมา ${Math.abs(diffDays)} วัน)`;
+        if (desc) desc.innerText = `หมดอายุเมื่อวันที่ ${expDateStr} กรุณาดำเนินการต่ออายุทันที`;
       } else if (diffDays <= 180) {
-        // ใกล้หมดอายุภายใน 180 วัน
         box.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-700');
-        icon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500"></i>`;
-        title.innerText = `ใบอนุญาตประกอบวิชาชีพใกล้หมดอายุ! (เหลืออีก ${diffDays} วัน)`;
-        desc.innerText = `ใบอนุญาตของท่านจะหมดอายุในวันที่ ${expDateStr} กรุณาเตรียมต่ออายุล่วงหน้า`;
+        if (icon) icon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500"></i>`;
+        if (title) title.innerText = `ใบอนุญาตประกอบวิชาชีพใกล้หมดอายุ! (เหลืออีก ${diffDays} วัน)`;
+        if (desc) desc.innerText = `จะหมดอายุในวันที่ ${expDateStr} กรุณาเตรียมต่ออายุล่วงหน้า`;
       } else {
-        // ยังไม่หมดอายุ
         box.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-700');
-        icon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500"></i>`;
-        title.innerText = `ใบอนุญาตประกอบวิชาชีพยังไม่หมดอายุ (เหลืออีก ${diffDays} วัน)`;
-        desc.innerText = `มีผลใช้ได้จนถึงวันที่ ${expDateStr}`;
+        if (icon) icon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500"></i>`;
+        if (title) title.innerText = `ใบอนุญาตประกอบวิชาชีพยังไม่หมดอายุ (เหลืออีก ${diffDays} วัน)`;
+        if (desc) desc.innerText = `มีผลใช้ได้จนถึงวันที่ ${expDateStr}`;
       }
     }
 
-   async function loadSystemData(showLoading = false) {
+    async function loadSystemData(showLoading = false) {
       if (showLoading) {
         Swal.fire({ title: 'กำลังโหลดข้อมูล...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
       }
@@ -653,7 +672,6 @@
         
         if (json.success && json.data) {
           rawTeacherList = json.data;
-          setupNameDropdown();
           if (isAdminUnlocked) {
             renderAdminCards();
             renderAdminStats();
@@ -703,7 +721,7 @@
       }
     }
 
-    // ================= โซนของคุณครู =================
+    // ================= โซนล็อกอินของคุณครู =================
     function setLoginMethod(method) {
       if (method === 'cid') {
         document.getElementById('login-by-cid').classList.remove('hidden');
@@ -718,25 +736,12 @@
       }
     }
 
-    function setupNameDropdown(filterText = '') {
-      const select = document.getElementById('select-teacher-name');
-      const filtered = rawTeacherList.filter(t => (t["ชื่อ-นามสกุล"] || '').toLowerCase().includes(filterText.toLowerCase()));
-      select.innerHTML = `<option value="">-- กรุณาเลือกชื่อของคุณ (${filtered.length} รายการ) --</option>` + 
-        filtered.map(t => `<option value="${t._rowIndex}_${t._sheetName}">${t["ชื่อ-นามสกุล"]} (${t._sheetName})</option>`).join('');
-    }
-
-    function filterNameList() {
-      const q = document.getElementById('input-name-filter').value;
-      setupNameDropdown(q);
-    }
-
     async function loginWithCid() {
-      const cid = document.getElementById('input-cid').value.trim();
+      const cid = (document.getElementById('input-cid')?.value || '').trim();
       if (cid.length !== 13) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
       
-      // ถ้าระบบยังโหลดข้อมูลไม่เสร็จ ให้รอโหลดข้อมูลก่อน ไม่เด้งแจ้งเตือนผิดๆ
       if (rawTeacherList.length === 0) {
-        Swal.fire({ title: 'กำลังโหลดข้อมูล...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        Swal.fire({ title: 'กำลังค้นหา...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         await loadSystemData(false);
         Swal.close();
       }
@@ -745,24 +750,22 @@
       if (match) {
         openProfileEditor(match);
       } else {
-        Swal.fire('ไม่พบเลขบัตรในระบบ', 'หากยังไม่เคยกรอกเลขบัตรประชาชน กรุณาเลือกแท็บ "ไม่มีเลขบัตร (ค้นด้วยชื่อ)" เพื่อเข้าไปกรอกเลขบัตรได้ครับ', 'info');
+        Swal.fire('ไม่พบเลขบัตรในระบบ', 'หากยังไม่เคยกรอกเลขบัตรประชาชน กรุณาเลือกแท็บ "ไม่มีเลขบัตร (ค้นด้วยชื่อ)" เพื่อค้นหาชื่อและเข้าไปกรอกเลขบัตรได้ครับ', 'info');
       }
     }
 
     async function loginByNameSearch() {
-      const keyword = (document.getElementById('input-search-name').value || '').trim();
+      const keyword = (document.getElementById('input-search-name')?.value || '').trim();
       if (!keyword || keyword.length < 2) {
-        return Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อ หรือ นามสกุลของคุณอย่างน้อย 2 ตัวอักษร', 'warning');
+        return Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อ หรือ นามสกุล อย่างน้อย 2 ตัวอักษร', 'warning');
       }
 
-      // ถ้าข้อมูลยังโหลดไม่เสร็จ ให้รอโหลดก่อน
       if (rawTeacherList.length === 0) {
         Swal.fire({ title: 'กำลังค้นหา...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         await loadSystemData(false);
         Swal.close();
       }
 
-      // ค้นหาชื่อที่ตรงกับคำที่พิมพ์ (ตัดเว้นวรรคออกเพื่อให้ค้นเจอง่าย)
       const cleanKeyword = keyword.toLowerCase().replace(/\s+/g, '');
       const matches = rawTeacherList.filter(t => {
         const fullName = String(t["ชื่อ-นามสกุล"] || '').toLowerCase().replace(/\s+/g, '');
@@ -770,10 +773,8 @@
       });
 
       if (matches.length === 1) {
-        // กรณีเจอคนเดียวพอดี -> เปิดแฟ้มทันที
         openProfileEditor(matches[0]);
       } else if (matches.length > 1) {
-        // กรณีพิมพ์ชื่อสั้นไปแล้วเจอชื่อซ้ำกัน -> ให้เลือกเฉพาะคนที่ตรงกับคำค้นหาเท่านั้น
         let optionsHtml = {};
         matches.forEach((m, idx) => {
           optionsHtml[idx] = `${m["ชื่อ-นามสกุล"]} (${m._sheetName})`;
@@ -795,7 +796,6 @@
           openProfileEditor(matches[parseInt(selectedIdx)]);
         }
       } else {
-        // กรณีพิมพ์ผิดหรือไม่เจอ
         Swal.fire('ไม่พบข้อมูล', `ไม่พบชื่อ "${keyword}" ในระบบ กรุณาตรวจสอบการสะกดชื่อ-นามสกุลอีกครั้ง`, 'error');
       }
     }
@@ -803,120 +803,123 @@
     function logoutTeacher() {
       document.getElementById('profile-editor-card').classList.add('hidden');
       document.getElementById('login-card').classList.remove('hidden');
-      document.getElementById('input-cid').value = '';
-      document.getElementById('select-teacher-name').value = '';
+      safeVal('input-cid', '');
+      safeVal('input-search-name', '');
       activeAvatarBase64 = null;
     }
 
     function toggleEduLevel(level) {
       if (level === 'master') {
-        const isChecked = document.getElementById('check-master').checked;
-        document.getElementById('box-master').classList.toggle('hidden', !isChecked);
+        const isChecked = document.getElementById('check-master')?.checked;
+        document.getElementById('box-master')?.classList.toggle('hidden', !isChecked);
       } else if (level === 'phd') {
-        const isChecked = document.getElementById('check-phd').checked;
-        document.getElementById('box-phd').classList.toggle('hidden', !isChecked);
+        const isChecked = document.getElementById('check-phd')?.checked;
+        document.getElementById('box-phd')?.classList.toggle('hidden', !isChecked);
       }
     }
 
+    // ================= ฟังก์ชันเปิดโปรไฟล์ (มีระบบกันหน้าจอขาว 100%) =================
     function openProfileEditor(t) {
-      document.getElementById('login-card').classList.add('hidden');
-      document.getElementById('f-sheet').value = t._sheetName;
-      document.getElementById('f-row').value = t._rowIndex;
+      try {
+        safeVal('f-sheet', t._sheetName);
+        safeVal('f-row', t._rowIndex);
 
-      document.getElementById('label-dept').innerText = t._sheetName;
-      document.getElementById('label-name').innerText = t["ชื่อ-นามสกุล"];
-      
-      const isOutsourced = t._sheetName.includes("ลูกจ้างเหมา") || (t["ตำแหน่ง"] || '').includes("เหมาบริการ");
-      const appointLabel = isOutsourced ? "วันเริ่มสัญญาจ้าง" : "วันที่บรรจุ";
-      const appointDateVal = t["วันบรรจุ"] || '';
+        safeText('label-dept', t._sheetName);
+        safeText('label-name', t["ชื่อ-นามสกุล"]);
 
-      document.getElementById('lbl-appoint-date').innerText = appointLabel;
-      document.getElementById('f-appoint-date').value = appointDateVal;
-      document.getElementById('badge-appoint-date').innerText = `${appointLabel}: ${appointDateVal || '-'}`;
-      
-      document.getElementById('f-position').value = t["ตำแหน่ง"] || '';
-      document.getElementById('badge-pos').innerText = `ตำแหน่ง: ${t["ตำแหน่ง"] || '-'}`;
+        const isOutsourced = (t._sheetName || '').includes("ลูกจ้างเหมา") || (t["ตำแหน่ง"] || '').includes("เหมาบริการ");
+        const appointLabel = isOutsourced ? "วันเริ่มสัญญาจ้าง" : "วันที่บรรจุ";
+        const appointDateVal = t["วันบรรจุ"] || '';
 
-      const avatarImg = document.getElementById('form-avatar');
-      avatarImg.src = t["รูปถ่าย"] || '';
-      avatarImg.setAttribute('onerror', `handleImgError(this, '${t["ชื่อ-นามสกุล"]}')`);
+        safeText('lbl-appoint-date', appointLabel);
+        safeVal('f-appoint-date', appointDateVal);
+        safeText('badge-appoint-date', `${appointLabel}: ${appointDateVal || '-'}`);
+        
+        safeVal('f-position', t["ตำแหน่ง"] || '');
+        safeText('badge-pos', `ตำแหน่ง: ${t["ตำแหน่ง"] || '-'}`);
 
-      document.getElementById('f-cid').value = t["เลขที่บัตรประชาชน"] || '';
-      document.getElementById('f-name').value = t["ชื่อ-นามสกุล"] || '';
-      document.getElementById('f-phone').value = t["เบอร์โทร"] || '';
-      document.getElementById('f-email').value = t["e-mail (ที่ไม่ใช่เมลล์ รร.)"] || '';
-
-      const birthStr = String(t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '');
-      if (birthStr.includes('/')) {
-        const parts = birthStr.split('/');
-        if (parts.length === 3) {
-          document.getElementById('birth-day').value = parts[0].padStart(2, '0');
-          document.getElementById('birth-month').value = parts[1].padStart(2, '0');
-          document.getElementById('birth-year').value = parts[2];
+        const avatarImg = document.getElementById('form-avatar');
+        if (avatarImg) {
+          avatarImg.src = t["รูปถ่าย"] || '';
+          avatarImg.setAttribute('onerror', `handleImgError(this, '${t["ชื่อ-นามสกุล"]}')`);
         }
+
+        safeVal('f-cid', t["เลขที่บัตรประชาชน"] || '');
+        safeVal('f-name', t["ชื่อ-นามสกุล"] || '');
+        safeVal('f-phone', t["เบอร์โทร"] || '');
+        safeVal('f-email', t["e-mail (ที่ไม่ใช่เมลล์ รร.)"] || '');
+
+        const birthStr = String(t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '');
+        if (birthStr.includes('/')) {
+          const parts = birthStr.split('/');
+          if (parts.length === 3) {
+            safeVal('birth-day', parts[0].padStart(2, '0'));
+            safeVal('birth-month', parts[1].padStart(2, '0'));
+            safeVal('birth-year', parts[2]);
+          }
+        }
+        autoCalculateAge();
+
+        safeVal('edu-bachelor-degree', t["วุฒิ ป.ตรี"] || t["วุฒิการศึกษา"] || '');
+        safeVal('edu-bachelor-major', t["สาขาวิชาเอก ป.ตรี"] || '');
+
+        const masterDegree = t["วุฒิ ป.โท"] || '';
+        const masterMajor = t["สาขาวิชาเอก ป.โท"] || '';
+        const hasMaster = !!(masterDegree || masterMajor || (t["การศึกษาสูงสุด"] || '').includes('โท'));
+        const checkM = document.getElementById('check-master');
+        if (checkM) checkM.checked = hasMaster;
+        document.getElementById('box-master')?.classList.toggle('hidden', !hasMaster);
+        safeVal('edu-master-degree', masterDegree);
+        safeVal('edu-master-major', masterMajor);
+
+        const phdDegree = t["วุฒิ ป.เอก"] || '';
+        const phdMajor = t["สาขาวิชาเอก ป.เอก"] || '';
+        const hasPhd = !!(phdDegree || phdMajor || (t["การศึกษาสูงสุด"] || '').includes('เอก'));
+        const checkP = document.getElementById('check-phd');
+        if (checkP) checkP.checked = hasPhd;
+        document.getElementById('box-phd')?.classList.toggle('hidden', !hasPhd);
+        safeVal('edu-phd-degree', phdDegree);
+        safeVal('edu-phd-major', phdMajor);
+
+        safeVal('f-license', t["เลขที่ใบประกอบวิชาชีพ"] || '');
+        const expDateVal = t["วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)"] || '';
+        safeVal('f-license-exp', expDateVal);
+        updateTeacherLicenseAlertBox(expDateVal);
+
+        // ปิดหน้าล็อกอิน แล้วเปิดหน้าแก้ไข
+        document.getElementById('login-card').classList.add('hidden');
+        document.getElementById('profile-editor-card').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (err) {
+        console.error("Error opening profile:", err);
+        document.getElementById('login-card').classList.remove('hidden');
+        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถแสดงผลแฟ้มข้อมูลได้: ' + err.message, 'error');
       }
-      autoCalculateAge();
-
-      document.getElementById('edu-bachelor-degree').value = t["วุฒิ ป.ตรี"] || t["วุฒิการศึกษา"] || '';
-      document.getElementById('edu-bachelor-major').value = t["สาขาวิชาเอก ป.ตรี"] || '';
-
-      const masterDegree = t["วุฒิ ป.โท"] || '';
-      const masterMajor = t["สาขาวิชาเอก ป.โท"] || '';
-      if (masterDegree || masterMajor || (t["การศึกษาสูงสุด"] || '').includes('โท')) {
-        document.getElementById('check-master').checked = true;
-        document.getElementById('box-master').classList.remove('hidden');
-        document.getElementById('edu-master-degree').value = masterDegree;
-        document.getElementById('edu-master-major').value = masterMajor;
-      } else {
-        document.getElementById('check-master').checked = false;
-        document.getElementById('box-master').classList.add('hidden');
-      }
-
-      const phdDegree = t["วุฒิ ป.เอก"] || '';
-      const phdMajor = t["สาขาวิชาเอก ป.เอก"] || '';
-      if (phdDegree || phdMajor || (t["การศึกษาสูงสุด"] || '').includes('เอก')) {
-        document.getElementById('check-phd').checked = true;
-        document.getElementById('box-phd').classList.remove('hidden');
-        document.getElementById('edu-phd-degree').value = phdDegree;
-        document.getElementById('edu-phd-major').value = phdMajor;
-      } else {
-        document.getElementById('check-phd').checked = false;
-        document.getElementById('box-phd').classList.add('hidden');
-      }
-
-      document.getElementById('f-license').value = t["เลขที่ใบประกอบวิชาชีพ"] || '';
-      const expDateVal = t["วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)"] || '';
-      document.getElementById('f-license-exp').value = expDateVal;
-
-      // ตรวจสอบและแสดงแถบแจ้งเตือนอายุใบอนุญาตของครู
-      updateTeacherLicenseAlertBox(expDateVal);
-
-      document.getElementById('profile-editor-card').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function saveProfileData(e) {
       e.preventDefault();
 
-      const bDay = document.getElementById('birth-day').value;
-      const bMonth = document.getElementById('birth-month').value;
-      const bYear = document.getElementById('birth-year').value;
+      const bDay = document.getElementById('birth-day')?.value;
+      const bMonth = document.getElementById('birth-month')?.value;
+      const bYear = document.getElementById('birth-year')?.value;
       if (!bDay || !bMonth || !bYear) {
         return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือก วัน / เดือน / ปี พ.ศ. เกิด ให้ครบถ้วน', 'warning');
       }
       const formattedBirthDate = `${bDay}/${bMonth}/${bYear}`;
       const calculatedAge = calculateAge(bDay, bMonth, bYear);
 
-      const bDegree = document.getElementById('edu-bachelor-degree').value.trim();
-      const bMajor = document.getElementById('edu-bachelor-major').value.trim();
+      const bDegree = (document.getElementById('edu-bachelor-degree')?.value || '').trim();
+      const bMajor = (document.getElementById('edu-bachelor-major')?.value || '').trim();
 
-      const hasMaster = document.getElementById('check-master').checked;
-      const mDegree = hasMaster ? document.getElementById('edu-master-degree').value.trim() : '';
-      const mMajor = hasMaster ? document.getElementById('edu-master-major').value.trim() : '';
+      const hasMaster = document.getElementById('check-master')?.checked;
+      const mDegree = hasMaster ? (document.getElementById('edu-master-degree')?.value || '').trim() : '';
+      const mMajor = hasMaster ? (document.getElementById('edu-master-major')?.value || '').trim() : '';
 
-      const hasPhd = document.getElementById('check-phd').checked;
-      const pDegree = hasPhd ? document.getElementById('edu-phd-degree').value.trim() : '';
-      const pMajor = hasPhd ? document.getElementById('edu-phd-major').value.trim() : '';
+      const hasPhd = document.getElementById('check-phd')?.checked;
+      const pDegree = hasPhd ? (document.getElementById('edu-phd-degree')?.value || '').trim() : '';
+      const pMajor = hasPhd ? (document.getElementById('edu-phd-major')?.value || '').trim() : '';
 
       let maxEdu = "ปริญญาตรี";
       let highestDegree = bDegree;
@@ -943,16 +946,16 @@
       const payload = {
         action: "updateTeacher",
         data: {
-          "_sheetName": document.getElementById('f-sheet').value,
-          "_rowIndex": document.getElementById('f-row').value,
-          "เลขที่บัตรประชาชน": document.getElementById('f-cid').value,
-          "ชื่อ-นามสกุล": document.getElementById('f-name').value,
+          "_sheetName": document.getElementById('f-sheet')?.value,
+          "_rowIndex": document.getElementById('f-row')?.value,
+          "เลขที่บัตรประชาชน": document.getElementById('f-cid')?.value,
+          "ชื่อ-นามสกุล": document.getElementById('f-name')?.value,
           "วันเกิด (วัน/เดือน/ปี พ.ศ.)": formattedBirthDate,
           "อายุ": `${calculatedAge}ปี`,
-          "วันบรรจุ": document.getElementById('f-appoint-date').value, // วันที่บรรจุ/เริ่มสัญญาจ้าง
-          "ตำแหน่ง": document.getElementById('f-position').value, // ตำแหน่งที่พิมพ์เองได้
-          "เบอร์โทร": document.getElementById('f-phone').value,
-          "e-mail (ที่ไม่ใช่เมลล์ รร.)": document.getElementById('f-email').value,
+          "วันบรรจุ": document.getElementById('f-appoint-date')?.value,
+          "ตำแหน่ง": document.getElementById('f-position')?.value,
+          "เบอร์โทร": document.getElementById('f-phone')?.value,
+          "e-mail (ที่ไม่ใช่เมลล์ รร.)": document.getElementById('f-email')?.value,
           "การศึกษาสูงสุด": maxEdu,
           "วุฒิการศึกษา": highestDegree,
           "วิชาเอก [กรณีจบ ป.โท/เอก ให้เพิ่มเอกโดยใส่หมายเลข 1)...2)...3)...]": combinedMajors.join(' '),
@@ -964,8 +967,8 @@
           "วุฒิ ป.เอก": pDegree,
           "สาขาวิชาเอก ป.เอก": pMajor,
 
-          "เลขที่ใบประกอบวิชาชีพ": document.getElementById('f-license').value,
-          "วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)": document.getElementById('f-license-exp').value,
+          "เลขที่ใบประกอบวิชาชีพ": document.getElementById('f-license')?.value,
+          "วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)": document.getElementById('f-license-exp')?.value,
           "imageBase64": activeAvatarBase64,
           "imageMimeType": "image/jpeg"
         }
@@ -1041,7 +1044,7 @@
     }
 
     function renderAdminCards() {
-      const q = document.getElementById('admin-search').value.toLowerCase().trim();
+      const q = (document.getElementById('admin-search')?.value || '').toLowerCase().trim();
       const list = rawTeacherList.filter(t => {
         const matchDept = selectedDeptFilter === "ทั้งหมด" || t._sheetName === selectedDeptFilter;
         const name = (t["ชื่อ-นามสกุล"] || '').toLowerCase();
@@ -1122,71 +1125,76 @@
         }
       });
 
-      document.getElementById('stat-teachers-count').innerText = teacherCount;
-      document.getElementById('stat-staff-count').innerText = staffCount;
-      document.getElementById('stat-bachelor').innerText = bachCount;
-      document.getElementById('stat-master').innerText = mastCount;
-      document.getElementById('stat-phd').innerText = phdCount;
+      safeText('stat-teachers-count', teacherCount);
+      safeText('stat-staff-count', staffCount);
+      safeText('stat-bachelor', bachCount);
+      safeText('stat-master', mastCount);
+      safeText('stat-phd', phdCount);
 
-      document.getElementById('stat-pos-assistant').innerText = kAssistant;
-      document.getElementById('stat-pos-k1').innerText = k1;
-      document.getElementById('stat-pos-k2').innerText = k2;
-      document.getElementById('stat-pos-k3').innerText = k3;
+      safeText('stat-pos-assistant', kAssistant);
+      safeText('stat-pos-k1', k1);
+      safeText('stat-pos-k2', k2);
+      safeText('stat-pos-k3', k3);
 
-      document.getElementById('stat-expiring-license').innerText = expiringCount;
+      safeText('stat-expiring-license', expiringCount);
 
-      // เติมตารางแจ้งเตือนใบอนุญาตฯ
       const tableBody = document.getElementById('license-alert-table-body');
-      if (expiringList.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ไม่มีใบอนุญาตฯ ที่หมดอายุหรือใกล้หมดอายุในระยะนี้</td></tr>`;
-      } else {
-        tableBody.innerHTML = expiringList.map(item => `
-          <tr class="hover:bg-rose-50/40 transition">
-            <td class="p-3 font-semibold text-slate-800">${item.name}</td>
-            <td class="p-3">${item.dept}</td>
-            <td class="p-3 font-mono text-[11px]">${item.license}</td>
-            <td class="p-3 font-medium">${item.expDateStr}</td>
-            <td class="p-3">
-              ${item.isExpired 
-                ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">หมดอายุแล้ว (${Math.abs(item.daysLeft)} วัน)</span>` 
-                : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">เหลืออีก ${item.daysLeft} วัน</span>`}
-            </td>
-          </tr>
-        `).join('');
+      if (tableBody) {
+        if (expiringList.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ไม่มีใบอนุญาตฯ ที่หมดอายุหรือใกล้หมดอายุในระยะนี้</td></tr>`;
+        } else {
+          tableBody.innerHTML = expiringList.map(item => `
+            <tr class="hover:bg-rose-50/40 transition">
+              <td class="p-3 font-semibold text-slate-800">${item.name}</td>
+              <td class="p-3">${item.dept}</td>
+              <td class="p-3 font-mono text-[11px]">${item.license}</td>
+              <td class="p-3 font-medium">${item.expDateStr}</td>
+              <td class="p-3">
+                ${item.isExpired 
+                  ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">หมดอายุแล้ว (${Math.abs(item.daysLeft)} วัน)</span>` 
+                  : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">เหลืออีก ${item.daysLeft} วัน</span>`}
+              </td>
+            </tr>
+          `).join('');
+        }
       }
 
-      // วาดกราฟกลุ่มสาระ
       if (chartDept) chartDept.destroy();
-      chartDept = new Chart(document.getElementById('chart-dept'), {
-        type: 'bar',
-        data: {
-          labels: Object.keys(depts),
-          datasets: [{ label: 'จำนวน (คน)', data: Object.values(depts), backgroundColor: '#4ADE80', borderRadius: 8 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
+      const ctxDept = document.getElementById('chart-dept');
+      if (ctxDept) {
+        chartDept = new Chart(ctxDept, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(depts),
+            datasets: [{ label: 'จำนวน (คน)', data: Object.values(depts), backgroundColor: '#4ADE80', borderRadius: 8 }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
 
-      // วาดกราฟตำแหน่งและวิทยฐานะ
       if (chartPos) chartPos.destroy();
-      chartPos = new Chart(document.getElementById('chart-pos'), {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(posMap),
-          datasets: [{ data: Object.values(posMap), backgroundColor: ['#4ADE80','#FACC15','#38BDF8','#F472B6','#A78BFA','#94A3B8','#F87171','#FB923C'] }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
+      const ctxPos = document.getElementById('chart-pos');
+      if (ctxPos) {
+        chartPos = new Chart(ctxPos, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(posMap),
+            datasets: [{ data: Object.values(posMap), backgroundColor: ['#4ADE80','#FACC15','#38BDF8','#F472B6','#A78BFA','#94A3B8','#F87171','#FB923C'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
     }
 
     function switchAdminSubView(view) {
       if (view === 'cards') {
-        document.getElementById('admin-view-cards').classList.remove('hidden');
-        document.getElementById('admin-view-stats').classList.add('hidden');
+        document.getElementById('admin-view-cards')?.classList.remove('hidden');
+        document.getElementById('admin-view-stats')?.classList.add('hidden');
         document.getElementById('btn-sub-cards').className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-mint-500 text-white transition shadow-sm";
         document.getElementById('btn-sub-stats').className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
       } else {
-        document.getElementById('admin-view-cards').classList.add('hidden');
-        document.getElementById('admin-view-stats').classList.remove('hidden');
+        document.getElementById('admin-view-cards')?.classList.add('hidden');
+        document.getElementById('admin-view-stats')?.classList.remove('hidden');
         document.getElementById('btn-sub-stats').className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-mint-500 text-white transition shadow-sm";
         document.getElementById('btn-sub-cards').className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
       }
@@ -1194,53 +1202,57 @@
 
     function openDossier(t) {
       const modalAvatar = document.getElementById('m-avatar');
-      modalAvatar.src = t["รูปถ่าย"] || '';
-      modalAvatar.setAttribute('onerror', `handleImgError(this, '${t["ชื่อ-นามสกุล"]}')`);
+      if (modalAvatar) {
+        modalAvatar.src = t["รูปถ่าย"] || '';
+        modalAvatar.setAttribute('onerror', `handleImgError(this, '${t["ชื่อ-นามสกุล"]}')`);
+      }
 
-      document.getElementById('m-dept').innerText = t._sheetName;
-      document.getElementById('m-name').innerText = t["ชื่อ-นามสกุล"];
-      document.getElementById('m-pos').innerText = `${t["ตำแหน่ง"] || '-'} (เลขที่ ${t["เลขที่ตำแหน่ง"] || '-'})`;
-      document.getElementById('m-cid').innerText = t["เลขที่บัตรประชาชน"] || 'ยังไม่มีข้อมูล';
-      document.getElementById('m-posno').innerText = t["เลขที่ตำแหน่ง"] || '-';
-      document.getElementById('m-birth').innerText = t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '-';
-      document.getElementById('m-age').innerText = `${t["อายุ"] || '-'} ปี`;
+      safeText('m-dept', t._sheetName);
+      safeText('m-name', t["ชื่อ-นามสกุล"]);
+      safeText('m-pos', `${normalizePosition(t["ตำแหน่ง"])} (เลขที่ ${t["เลขที่ตำแหน่ง"] || '-'})`);
+      safeText('m-cid', t["เลขที่บัตรประชาชน"] || 'ยังไม่มีข้อมูล');
+      safeText('m-posno', t["เลขที่ตำแหน่ง"] || '-');
+      safeText('m-birth', t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '-');
+      safeText('m-age', `${t["อายุ"] || '-'} ปี`);
 
-      const isOutsourced = t._sheetName.includes("ลูกจ้างเหมา") || (t["ตำแหน่ง"] || '').includes("เหมาบริการ");
+      const isOutsourced = (t._sheetName || '').includes("ลูกจ้างเหมา") || (t["ตำแหน่ง"] || '').includes("เหมาบริการ");
       const appointLabel = isOutsourced ? "วันเริ่มสัญญาจ้าง:" : "วันที่บรรจุ:";
-      document.getElementById('m-lbl-appoint').innerText = appointLabel;
-      document.getElementById('m-appoint-date').innerText = t["วันบรรจุ"] || '-';
-      document.getElementById('m-retire').innerText = t["วันเกษียณ"] || '-';
-      document.getElementById('m-edu').innerText = t["การศึกษาสูงสุด"] || '-';
+      safeText('m-lbl-appoint', appointLabel);
+      safeText('m-appoint-date', t["วันบรรจุ"] || '-');
+      safeText('m-retire', t["วันเกษียณ"] || '-');
+      safeText('m-edu', t["การศึกษาสูงสุด"] || '-');
 
       let eduHtml = '';
       if (t["วุฒิ ป.ตรี"]) eduHtml += `<div>• ป.ตรี: <b>${t["วุฒิ ป.ตรี"]}</b> (${t["สาขาวิชาเอก ป.ตรี"] || 'ไม่ระบุสาขา'})</div>`;
       if (t["วุฒิ ป.โท"]) eduHtml += `<div>• ป.โท: <b>${t["วุฒิ ป.โท"]}</b> (${t["สาขาวิชาเอก ป.โท"] || 'ไม่ระบุสาขา'})</div>`;
       if (t["วุฒิ ป.เอก"]) eduHtml += `<div>• ป.เอก: <b>${t["วุฒิ ป.เอก"]}</b> (${t["สาขาวิชาเอก ป.เอก"] || 'ไม่ระบุสาขา'})</div>`;
       if (!eduHtml) eduHtml = `<div>${t["วิชาเอก [กรณีจบ ป.โท/เอก ให้เพิ่มเอกโดยใส่หมายเลข 1)...2)...3)...]"] || '-'}</div>`;
-      document.getElementById('m-edu-details').innerHTML = eduHtml;
+      
+      const mEduDetails = document.getElementById('m-edu-details');
+      if (mEduDetails) mEduDetails.innerHTML = eduHtml;
 
-      document.getElementById('m-license').innerText = t["เลขที่ใบประกอบวิชาชีพ"] || '-';
-      document.getElementById('m-exp').innerText = t["วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)"] || '-';
-      document.getElementById('m-insignia').innerText = t["เครื่องราชอิสริยาภรณ์ที่เคยได้รับ"] || 'ยังไม่ได้รับ';
-      document.getElementById('m-phone').innerText = t["เบอร์โทร"] || '-';
-      document.getElementById('m-email').innerText = t["e-mail (ที่ไม่ใช่เมลล์ รร.)"] || '-';
+      safeText('m-license', t["เลขที่ใบประกอบวิชาชีพ"] || '-');
+      safeText('m-exp', t["วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)"] || '-');
+      safeText('m-insignia', t["เครื่องราชอิสริยาภรณ์ที่เคยได้รับ"] || 'ยังไม่ได้รับ');
+      safeText('m-phone', t["เบอร์โทร"] || '-');
+      safeText('m-email', t["e-mail (ที่ไม่ใช่เมลล์ รร.)"] || '-');
 
-      document.getElementById('modal-dossier').classList.remove('hidden');
+      document.getElementById('modal-dossier')?.classList.remove('hidden');
     }
 
     function closeDossierModal() {
-      document.getElementById('modal-dossier').classList.add('hidden');
+      document.getElementById('modal-dossier')?.classList.add('hidden');
     }
 
     function switchMainTab(mode) {
       if (mode === 'teacher') {
-        document.getElementById('section-teacher').classList.remove('hidden');
-        document.getElementById('section-admin').classList.add('hidden');
+        document.getElementById('section-teacher')?.classList.remove('hidden');
+        document.getElementById('section-admin')?.classList.add('hidden');
         document.getElementById('btn-tab-teacher').className = "px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-mint-500 text-white shadow-sm shadow-mint-500/20";
         document.getElementById('btn-tab-admin').className = "px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-pastelYellow-100 text-pastelYellow-700 border border-pastelYellow-300 hover:bg-pastelYellow-200";
       } else {
-        document.getElementById('section-teacher').classList.add('hidden');
-        document.getElementById('section-admin').classList.remove('hidden');
+        document.getElementById('section-teacher')?.classList.add('hidden');
+        document.getElementById('section-admin')?.classList.remove('hidden');
         document.getElementById('btn-tab-admin').className = "px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-mint-500 text-white shadow-sm shadow-mint-500/20";
         document.getElementById('btn-tab-teacher').className = "px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition bg-pastelYellow-100 text-pastelYellow-700 border border-pastelYellow-300 hover:bg-pastelYellow-200";
       }
