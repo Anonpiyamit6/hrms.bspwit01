@@ -1452,8 +1452,7 @@
       safeText('m-cid', t["เลขที่บัตรประชาชน"] || 'ยังไม่มีข้อมูล');
       safeText('m-posno', t["เลขที่ตำแหน่ง"] || '-');
       safeText('m-birth', t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '-');
-      const cleanAge = String(t["อายุ"] || '-').replace(/ปี/g, '').trim();
-safeText('m-age', cleanAge !== '-' ? `${cleanAge} ปี` : '-');
+      safeText('m-age', `${t["อายุ"] || '-'}`);
 
       const isOutsourced = (t._sheetName || '').includes("ลูกจ้างเหมา") || (t["ตำแหน่ง"] || '').includes("เหมาบริการ");
       const appointLabel = isOutsourced ? "วันเริ่มสัญญาจ้าง:" : "วันที่บรรจุ:";
