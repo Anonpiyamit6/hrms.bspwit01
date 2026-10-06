@@ -534,7 +534,16 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       initDateDropdowns();
-      loadSystemData(true);
+      // ดึงข้อมูลเก่าที่เคยจำไว้ในเครื่องมาแสดงผลทันทีใน 0.05 วินาที
+      const cached = localStorage.getItem('OFFLINE_TEACHERS');
+      if (cached) {
+        try {
+          rawTeacherList = JSON.parse(cached);
+          setupNameDropdown();
+        } catch(e) {}
+      }
+      // โหลดข้อมูลล่าสุดจากชีทเงียบๆ เบื้องหลัง (ไม่ขึ้นกล่องหมุนมาบัง)
+      loadSystemData(false);
     });
 
     function initDateDropdowns() {
@@ -644,9 +653,10 @@
       }
     }
 
-    async function loadSystemData(showLoading = false) {
-      if (showLoading) {
-        Swal.fire({ title: 'กำลังเชื่อมต่อข้อมูล...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+   async function loadSystemData(showLoading = false) {
+      // แสดงปุ่มหมุนเล็กๆ เฉพาะคนที่ไม่มีข้อมูลในเครื่องเลยจริงๆ
+      if (showLoading && rawTeacherList.length === 0) {
+        Swal.fire({ title: 'กำลังโหลดข้อมูล...', text: 'ครั้งแรกอาจใช้เวลาสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
       }
       try {
         const res = await fetch(`${API_URL}?action=getAll`);
@@ -655,6 +665,8 @@
         
         if (json.success) {
           rawTeacherList = json.data;
+          // จำข้อมูลลงในเครื่องของผู้ใช้ เพื่อให้ครั้งต่อไปเปิดได้ทันที
+          localStorage.setItem('OFFLINE_TEACHERS', JSON.stringify(rawTeacherList));
           setupNameDropdown();
           if (isAdminUnlocked) {
             renderAdminCards();
@@ -662,7 +674,9 @@
           }
         }
       } catch (err) {
-        if (showLoading) Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อ Google Sheets ได้', 'error');
+        if (showLoading && rawTeacherList.length === 0) {
+          Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อ Google Sheets ได้', 'error');
+        }
       }
     }
 
