@@ -110,15 +110,15 @@
           <p class="text-xs text-slate-500 mt-1">เลือกวิธีเข้าสู่ระบบเพื่อเปิดแฟ้มข้อมูลและอัปโหลดรูปถ่ายของคุณ</p>
         </div>
 
-        <div class="flex p-1.5 bg-mint-50/60 border border-mint-100 rounded-2xl max-w-md mx-auto mb-6">
+        <!-- โค้ดใหม่ แบ่งชัดเจน: ครูใช้เลขบัตร / ลูกจ้างใช้ค้นชื่อ -->
+        <div class="flex p-1.5 bg-mint-50/60 border border-mint-100 rounded-2xl max-w-lg mx-auto mb-6">
           <button onclick="setLoginMethod('cid')" id="tab-btn-cid" class="flex-1 py-2 text-xs font-semibold rounded-xl transition bg-white text-mint-700 shadow-sm">
-            <i class="fa-solid fa-id-card mr-1"></i> ใช้เลขบัตรประชาชน
+            <i class="fa-solid fa-id-card mr-1"></i> ครู (ใช้เลขบัตรประชาชน)
           </button>
           <button onclick="setLoginMethod('name')" id="tab-btn-name" class="flex-1 py-2 text-xs font-semibold rounded-xl transition text-slate-500 hover:text-slate-800">
-            <i class="fa-solid fa-user mr-1"></i> ไม่มีเลขบัตร (ค้นด้วยชื่อ)
+            <i class="fa-solid fa-user-gear mr-1"></i> พนักงาน/ลูกจ้าง (ค้นด้วยชื่อ)
           </button>
         </div>
-
         <!-- ฟอร์ม: เลขบัตร -->
         <div id="login-by-cid" class="max-w-md mx-auto space-y-3">
           <input type="text" id="input-cid" maxlength="13" placeholder="กรอกเลขบัตรประชาชน 13 หลัก" 
@@ -136,7 +136,7 @@
             <input type="text" id="input-search-name" placeholder="กรอกชื่อ หรือ นามสกุล เพื่อค้นหา..." 
                    onkeypress="if(event.key === 'Enter') loginByNameSearch()"
                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition text-center font-medium">
-            <p class="text-[11px] text-slate-400 mt-1.5 text-center">*กรอกชื่อหรือนามสกุล แล้วกดปุ่มค้นหา</p>
+            <p class="text-[11px] text-slate-400 mt-1.5 text-center">*ค้นหาเฉพาะพนักงานราชการ ลูกจ้างประจำ และลูกจ้างเหมาบริการ</p>
           </div>
           <button onclick="loginByNameSearch()" class="w-full py-3 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-magnifying-glass"></i> ค้นหาและเปิดแฟ้มข้อมูล
@@ -816,7 +816,7 @@
       }
     }
 
-    // ค้นหาด้วยชื่อแบบ Popup สวยงาม พรีเมียม (ไม่มี Dropdown โบราณ)
+    // ค้นหาด้วยชื่อ (กรองเฉพาะ: พนักงานราชการและลูกจ้างประจำ, ลูกจ้างเหมาบริการ)
     async function loginByNameSearch() {
       const keyword = (document.getElementById('input-search-name')?.value || '').trim();
       if (!keyword || keyword.length < 2) {
@@ -830,17 +830,31 @@
       }
 
       const cleanKeyword = keyword.toLowerCase().replace(/\s+/g, '');
+      
+      // กำหนดให้ค้นหาเฉพาะ 2 ชีทนี้เท่านั้น
+      const allowedSheets = ["พนักงานราชการและลูกจ้างประจำ", "ลูกจ้างเหมาบริการ"];
+
+      // 1. ค้นหาในกลุ่มพนักงานราชการและลูกจ้าง
       const matches = rawTeacherList.filter(t => {
+        const isStaff = allowedSheets.some(sheetName => (t._sheetName || '').includes(sheetName));
         const fullName = String(t["ชื่อ-นามสกุล"] || '').toLowerCase().replace(/\s+/g, '');
-        return fullName.includes(cleanKeyword);
+        return isStaff && fullName.includes(cleanKeyword);
+      });
+
+      // 2. ตรวจสอบว่า เผลอเอาชื่อครูมาค้นในช่องนี้หรือไม่
+      const isTeacher = rawTeacherList.some(t => {
+        const isStaff = allowedSheets.some(sheetName => (t._sheetName || '').includes(sheetName));
+        const fullName = String(t["ชื่อ-นามสกุล"] || '').toLowerCase().replace(/\s+/g, '');
+        return !isStaff && fullName.includes(cleanKeyword);
       });
 
       if (matches.length === 1) {
+        // เจอลูกจ้าง 1 คนพอดี -> เปิดแฟ้มทันที
         openProfileEditor(matches[0]);
       } else if (matches.length > 1) {
-        // ออกแบบการ์ดเลือกรายชื่อสไตล์พาสเทลสวยงาม
+        // เจอลูกจ้างชื่อซ้ำกัน -> แสดงการ์ดให้เลือก
         let candidateCardsHtml = `
-          <p class="text-xs text-slate-500 mb-3">พบรายชื่อที่ตรงกัน ${matches.length} คน กรุณาคลิกเลือกชื่อของคุณ:</p>
+          <p class="text-xs text-slate-500 mb-3">พบรายชื่อลูกจ้างที่ตรงกัน ${matches.length} คน กรุณาคลิกเลือกชื่อของคุณ:</p>
           <div class="space-y-2 text-left max-h-64 overflow-y-auto custom-scrollbar p-1">
         `;
         matches.forEach((m, idx) => {
@@ -852,7 +866,7 @@
                 </div>
                 <div>
                   <b class="text-sm text-slate-800 block group-hover:text-mint-700 transition">${m["ชื่อ-นามสกุล"]}</b>
-                  <span class="text-[11px] text-slate-500">${m._sheetName} | ${m["ตำแหน่ง"] || 'บุคลากร'}</span>
+                  <span class="text-[11px] text-slate-500">${m._sheetName} | ${m["ตำแหน่ง"] || 'ลูกจ้าง'}</span>
                 </div>
               </div>
               <i class="fa-solid fa-angle-right text-slate-400 group-hover:text-mint-600 transition text-sm"></i>
@@ -870,8 +884,18 @@
           showCancelButton: true,
           cancelButtonText: 'ปิดหน้าต่าง'
         });
+      } else if (isTeacher) {
+        // แจ้งเตือนกรณีเป็นครู แล้วเผลอมาค้นหาด้วยชื่อ
+        Swal.fire({
+          icon: 'info',
+          title: 'สำหรับคุณครูผู้สอน',
+          text: 'คุณครูต้องเข้าสู่ระบบด้วย "เลขประจำตัวประชาชน 13 หลัก" เท่านั้นครับ (ช่องนี้สงวนไว้เฉพาะพนักงานราชการและลูกจ้าง)',
+          confirmButtonColor: '#22C55E',
+          confirmButtonText: 'รับทราบ'
+        });
       } else {
-        Swal.fire('ไม่พบข้อมูล', `ไม่พบชื่อ "${keyword}" ในระบบ กรุณาตรวจสอบการสะกดชื่อ-นามสกุลอีกครั้ง`, 'error');
+        // ไม่พบข้อมูล
+        Swal.fire('ไม่พบข้อมูล', `ไม่พบรายชื่อ "${keyword}" ในกลุ่มพนักงานราชการหรือลูกจ้าง กรุณาตรวจสอบการสะกดชื่ออีกครั้ง`, 'error');
       }
     }
 
