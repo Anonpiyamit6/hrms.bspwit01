@@ -39,6 +39,33 @@
     .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+    /* ปรับแต่ง SweetAlert ให้สวยงามหรูหราเข้ากับธีม */
+    .swal2-popup {
+      border-radius: 2rem !important;
+      font-family: 'Sarabun', sans-serif !important;
+      padding: 2rem !important;
+      box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.15) !important;
+      border: 1px solid #DCFCE7 !important;
+    }
+    .swal2-title {
+      font-family: 'Prompt', sans-serif !important;
+      font-weight: 700 !important;
+      color: #1E293B !important;
+    }
+    .swal2-confirm {
+      border-radius: 1rem !important;
+      padding: 0.75rem 2rem !important;
+      font-weight: 600 !important;
+      background: linear-gradient(to right, #22C55E, #16A34A) !important;
+    }
+    .swal2-cancel {
+      border-radius: 1rem !important;
+      padding: 0.75rem 1.5rem !important;
+      font-weight: 600 !important;
+      background: #F1F5F9 !important;
+      color: #64748B !important;
+    }
   </style>
 </head>
 <body class="min-h-screen text-slate-700 flex flex-col antialiased">
@@ -102,11 +129,11 @@
           </button>
         </div>
 
-        <!-- ฟอร์ม: ชื่อ-สกุล (ไม่มี Dropdown ปลอดภัย ไม่เห็นชื่อคนอื่น) -->
+        <!-- ฟอร์ม: ชื่อ-สกุล (ลบเครื่องหมาย < ออกแล้ว) -->
         <div id="login-by-name" class="hidden max-w-md mx-auto space-y-3">
           <div>
             <label class="text-xs font-bold text-slate-600 mb-1 block text-center">พิมพ์ชื่อ หรือ นามสกุลของคุณ:</label>
-            <<input type="text" id="input-search-name" placeholder="กรอกชื่อ หรือ นามสกุล เพื่อค้นหา..." 
+            <input type="text" id="input-search-name" placeholder="กรอกชื่อ หรือ นามสกุล เพื่อค้นหา..." 
                    onkeypress="if(event.key === 'Enter') loginByNameSearch()"
                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition text-center font-medium">
             <p class="text-[11px] text-slate-400 mt-1.5 text-center">*กรอกชื่อหรือนามสกุล แล้วกดปุ่มค้นหา</p>
@@ -141,6 +168,7 @@
                 <span id="badge-pos" class="px-2.5 py-0.5 rounded-lg bg-white/20 text-white text-xs">ตำแหน่ง: -</span>
                 <span id="badge-appoint-date" class="px-2.5 py-0.5 rounded-lg bg-white/20 text-white text-xs">วันที่บรรจุ: -</span>
                 <span id="badge-age" class="px-2.5 py-0.5 rounded-lg bg-pastelYellow-400 text-slate-800 font-bold text-xs">อายุ: - ปี</span>
+                <span id="badge-retire" class="px-2.5 py-0.5 rounded-lg bg-rose-500/80 text-white font-bold text-xs">เกษียณ: -</span>
               </div>
             </div>
           </div>
@@ -180,11 +208,11 @@
                 <input type="text" id="f-name" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
               </div>
 
+              <!-- วันเกิด + อายุอัตโนมัติ -->
               <div>
                 <div class="flex justify-between items-center mb-1">
                   <label class="text-xs font-semibold text-slate-600">วันเกิด (วัน / เดือน / ปี พ.ศ.) <span class="text-rose-500">*</span></label>
                   <span id="calculated-age-label" class="text-[11px] font-bold text-mint-700 bg-mint-100 px-2 py-0.5 rounded-full">อายุ: - ปี</span>
-                  <span id="badge-retire" class="px-2.5 py-0.5 rounded-lg bg-white/20 text-white text-xs">เกษียณ: -</span>
                 </div>
                 <div class="grid grid-cols-3 gap-1.5">
                   <select id="birth-day" onchange="autoCalculateAge()" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white outline-none"></select>
@@ -193,12 +221,13 @@
                 </div>
               </div>
 
+              <!-- วันที่บรรจุ / วันเริ่มสัญญาจ้าง -->
               <div>
                 <label id="lbl-appoint-date" class="text-xs font-semibold text-slate-600">วันที่บรรจุ / วันเริ่มสัญญาจ้าง</label>
                 <input type="text" id="f-appoint-date" placeholder="เช่น 01/05/2565" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none focus:ring-2 focus:ring-mint-500/20">
               </div>
 
-<!-- ช่องวันเกษียณอายุ (ล็อกห้ามแก้ไข) -->
+              <!-- วันเกษียณอายุ (คนอายุ 60 ปี จะแสดงว่า เกษียณแล้ว) -->
               <div>
                 <label class="text-xs font-semibold text-slate-500">วันเกษียณอายุราชการ (ล็อกตามระเบียบ)</label>
                 <div class="relative mt-1">
@@ -207,7 +236,8 @@
                   <span class="absolute right-3 top-2.5 text-xs text-slate-400"><i class="fa-solid fa-lock"></i></span>
                 </div>
               </div>
-              
+
+              <!-- ตำแหน่ง / วิทยฐานะ -->
               <div>
                 <label class="text-xs font-semibold text-slate-600">ตำแหน่ง / วิทยฐานะ (พิมพ์ระบุได้เอง)</label>
                 <input type="text" id="f-position" placeholder="เช่น ครูผู้ช่วย, คศ.1 หรือ ภารโรง, แม่บ้าน, ธุรการ" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none focus:ring-2 focus:ring-mint-500/20">
@@ -217,7 +247,8 @@
                 <label class="text-xs font-semibold text-slate-600">เบอร์โทรศัพท์</label>
                 <input type="text" id="f-phone" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
               </div>
-              <div>
+              
+              <div class="sm:col-span-2">
                 <label class="text-xs font-semibold text-slate-600">อีเมลส่วนตัว (ไม่ใช่ของ รร.)</label>
                 <input type="email" id="f-email" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
               </div>
@@ -405,8 +436,6 @@
 
       <!-- สับเปลี่ยน: 2. แผนภูมิสถิติ (กราฟอยู่บน -> ตารางอยู่ล่าง) -->
       <div id="admin-view-stats" class="hidden space-y-6">
-        
-        <!-- กราฟแผนภูมิ -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="bg-white p-6 rounded-3xl border border-mint-100 shadow-sm">
             <h4 class="font-bold text-slate-800 text-sm mb-4">สัดส่วนบุคลากรแยกตามกลุ่มสาระฯ</h4>
@@ -418,7 +447,6 @@
           </div>
         </div>
 
-        <!-- ตารางแจ้งเตือนใบอนุญาตฯ -->
         <div class="bg-white p-6 rounded-3xl border border-rose-100 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
@@ -442,7 +470,6 @@
             </table>
           </div>
         </div>
-
       </div>
 
     </div>
@@ -499,7 +526,7 @@
           <div><span class="text-slate-400 block text-[11px]">วันเกิด:</span><b id="m-birth" class="text-slate-700">-</b></div>
           <div><span class="text-slate-400 block text-[11px]">อายุ:</span><b id="m-age" class="text-mint-700">-</b></div>
           <div><span id="m-lbl-appoint" class="text-slate-400 block text-[11px]">วันที่บรรจุ:</span><b id="m-appoint-date" class="text-slate-700">-</b></div>
-          <div><span class="text-slate-400 block text-[11px]">วันเกษียณอายุ:</span><b id="m-retire" class="text-rose-500">-</b></div>
+          <div><span class="text-slate-400 block text-[11px]">วันเกษียณอายุ:</span><b id="m-retire" class="text-rose-500 font-bold">-</b></div>
         </div>
         <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/60 space-y-1.5">
           <h5 class="font-bold text-slate-700 text-xs flex items-center gap-1.5">คุณวุฒิการศึกษา</h5>
@@ -537,7 +564,6 @@
     let chartPos = null;
     let cropper = null;
 
-    // ฟังก์ชันช่วยเซฟค่าแบบป้องกันข้อผิดพลาด 100%
     function safeVal(id, val) {
       const el = document.getElementById(id);
       if (el) el.value = (val !== undefined && val !== null) ? val : '';
@@ -606,6 +632,12 @@
       const age = calculateAge(d, m, y);
       safeText('calculated-age-label', `อายุ: ${age} ปี`);
       safeText('badge-age', `อายุ: ${age} ปี`);
+
+      // ถ้าอายุ 60 ปีขึ้นไป ให้ปรับสถานะวันเกษียณอัตโนมัติ
+      if (typeof age === 'number' && age >= 60) {
+        safeVal('f-retire-date', 'เกษียณอายุราชการแล้ว');
+        safeText('badge-retire', 'สถานะ: เกษียณอายุราชการแล้ว');
+      }
     }
 
     function normalizePosition(raw) {
@@ -761,10 +793,11 @@
       if (match) {
         openProfileEditor(match);
       } else {
-        Swal.fire('ไม่พบเลขบัตรในระบบ', 'หากยังไม่เคยกรอกเลขบัตรประชาชน กรุณาเลือกแท็บ "ไม่มีเลขบัตร (ค้นด้วยชื่อ)" เพื่อค้นหาชื่อและเข้าไปกรอกเลขบัตรได้ครับ', 'info');
+        Swal.fire('ไม่พบเลขบัตรในระบบ', 'หากยังไม่เคยกรอกเลขบัตรประชาชน กรุณาเลือกแท็บ "ไม่มีเลขบัตร (ค้นด้วยชื่อ)" เพื่อเข้าไปกรอกเลขบัตรได้ครับ', 'info');
       }
     }
 
+    // ค้นหาด้วยชื่อแบบ Popup สวยงาม พรีเมียม (ไม่มี Dropdown โบราณ)
     async function loginByNameSearch() {
       const keyword = (document.getElementById('input-search-name')?.value || '').trim();
       if (!keyword || keyword.length < 2) {
@@ -786,28 +819,47 @@
       if (matches.length === 1) {
         openProfileEditor(matches[0]);
       } else if (matches.length > 1) {
-        let optionsHtml = {};
+        // ออกแบบการ์ดเลือกรายชื่อสไตล์พาสเทลสวยงาม
+        let candidateCardsHtml = `
+          <p class="text-xs text-slate-500 mb-3">พบรายชื่อที่ตรงกัน ${matches.length} คน กรุณาคลิกเลือกชื่อของคุณ:</p>
+          <div class="space-y-2 text-left max-h-64 overflow-y-auto custom-scrollbar p-1">
+        `;
         matches.forEach((m, idx) => {
-          optionsHtml[idx] = `${m["ชื่อ-นามสกุล"]} (${m._sheetName})`;
+          candidateCardsHtml += `
+            <div onclick="chooseCandidateProfile(${idx})" class="p-3.5 rounded-2xl border border-mint-100 bg-mint-50/40 hover:bg-mint-100/70 hover:border-mint-400 cursor-pointer transition flex items-center justify-between group shadow-xs">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-mint-500 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  ${(m["ชื่อ-นามสกุล"] || '').charAt(0)}
+                </div>
+                <div>
+                  <b class="text-sm text-slate-800 block group-hover:text-mint-700 transition">${m["ชื่อ-นามสกุล"]}</b>
+                  <span class="text-[11px] text-slate-500">${m._sheetName} | ${m["ตำแหน่ง"] || 'บุคลากร'}</span>
+                </div>
+              </div>
+              <i class="fa-solid fa-angle-right text-slate-400 group-hover:text-mint-600 transition text-sm"></i>
+            </div>
+          `;
         });
+        candidateCardsHtml += `</div>`;
 
-        const { value: selectedIdx } = await Swal.fire({
-          title: 'พบข้อมูลที่ใกล้เคียง',
-          text: 'กรุณาเลือกชื่อของคุณและกลุ่มสาระที่ถูกต้อง:',
-          input: 'select',
-          inputOptions: optionsHtml,
-          inputPlaceholder: '-- เลือกรายชื่อของคุณ --',
+        window._matchedCandidates = matches;
+
+        Swal.fire({
+          title: 'ผลการค้นหารายชื่อ',
+          html: candidateCardsHtml,
+          showConfirmButton: false,
           showCancelButton: true,
-          confirmButtonText: 'ยืนยัน',
-          cancelButtonText: 'ยกเลิก',
-          confirmButtonColor: '#22C55E'
+          cancelButtonText: 'ปิดหน้าต่าง'
         });
-
-        if (selectedIdx !== undefined && selectedIdx !== '') {
-          openProfileEditor(matches[parseInt(selectedIdx)]);
-        }
       } else {
         Swal.fire('ไม่พบข้อมูล', `ไม่พบชื่อ "${keyword}" ในระบบ กรุณาตรวจสอบการสะกดชื่อ-นามสกุลอีกครั้ง`, 'error');
+      }
+    }
+
+    function chooseCandidateProfile(index) {
+      if (window._matchedCandidates && window._matchedCandidates[index]) {
+        Swal.close();
+        openProfileEditor(window._matchedCandidates[index]);
       }
     }
 
@@ -829,7 +881,7 @@
       }
     }
 
-    // ================= ฟังก์ชันเปิดโปรไฟล์ (มีระบบกันหน้าจอขาว 100%) =================
+    // ================= ฟังก์ชันเปิดโปรไฟล์ (ระบบคำนวณวันเกษียณอัจฉริยะ) =================
     function openProfileEditor(t) {
       try {
         safeVal('f-sheet', t._sheetName);
@@ -844,8 +896,6 @@
 
         safeText('lbl-appoint-date', appointLabel);
         safeVal('f-appoint-date', appointDateVal);
-        safeVal('f-retire-date', t["วันเกษียณ"] || '-');
-        safeText('badge-retire', `เกษียณ: ${t["วันเกษียณ"] || '-'}`);
         safeText('badge-appoint-date', `${appointLabel}: ${appointDateVal || '-'}`);
         
         safeVal('f-position', t["ตำแหน่ง"] || '');
@@ -862,6 +912,7 @@
         safeVal('f-phone', t["เบอร์โทร"] || '');
         safeVal('f-email', t["e-mail (ที่ไม่ใช่เมลล์ รร.)"] || '');
 
+        let parsedAge = 0;
         const birthStr = String(t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '');
         if (birthStr.includes('/')) {
           const parts = birthStr.split('/');
@@ -869,9 +920,21 @@
             safeVal('birth-day', parts[0].padStart(2, '0'));
             safeVal('birth-month', parts[1].padStart(2, '0'));
             safeVal('birth-year', parts[2]);
+            parsedAge = calculateAge(parts[0], parts[1], parts[2]);
           }
         }
         autoCalculateAge();
+
+        // ตรวจสอบสถานะการเกษียณอายุราชการ (ถ้าอายุ >= 60 ปี หรือในชีทระบุ)
+        let retireText = t["วันเกษียณ"] || '';
+        if (parsedAge >= 60 || (typeof t["อายุ"] === 'string' && parseInt(t["อายุ"]) >= 60)) {
+          retireText = 'เกษียณอายุราชการแล้ว';
+        } else if (!retireText) {
+          retireText = '-';
+        }
+
+        safeVal('f-retire-date', retireText);
+        safeText('badge-retire', `เกษียณ: ${retireText}`);
 
         safeVal('edu-bachelor-degree', t["วุฒิ ป.ตรี"] || t["วุฒิการศึกษา"] || '');
         safeVal('edu-bachelor-major', t["สาขาวิชาเอก ป.ตรี"] || '');
@@ -899,7 +962,6 @@
         safeVal('f-license-exp', expDateVal);
         updateTeacherLicenseAlertBox(expDateVal);
 
-        // ปิดหน้าล็อกอิน แล้วเปิดหน้าแก้ไข
         document.getElementById('login-card').classList.add('hidden');
         document.getElementById('profile-editor-card').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1232,7 +1294,16 @@
       const appointLabel = isOutsourced ? "วันเริ่มสัญญาจ้าง:" : "วันที่บรรจุ:";
       safeText('m-lbl-appoint', appointLabel);
       safeText('m-appoint-date', t["วันบรรจุ"] || '-');
-      safeText('m-retire', t["วันเกษียณ"] || '-');
+
+      // ตรวจสอบวันเกษียณ
+      let rText = t["วันเกษียณ"] || '';
+      const parsedAge = parseInt(t["อายุ"]) || 0;
+      if (parsedAge >= 60) {
+        rText = 'เกษียณอายุราชการแล้ว';
+      } else if (!rText) {
+        rText = '-';
+      }
+      safeText('m-retire', rText);
       safeText('m-edu', t["การศึกษาสูงสุด"] || '-');
 
       let eduHtml = '';
