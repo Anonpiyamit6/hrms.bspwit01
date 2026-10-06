@@ -352,6 +352,14 @@
                 <label class="text-xs font-semibold text-slate-600">วันหมดอายุใบประกอบวิชาชีพ (วว/ดด/ปปปป พ.ศ.)</label>
                 <input type="text" id="f-license-exp" oninput="updateTeacherLicenseAlertBox(this.value)" placeholder="เช่น 30/05/2570" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none">
               </div>
+              <!-- ช่องกรอกเครื่องราชอิสริยาภรณ์ -->
+              <div class="sm:col-span-2">
+                <label class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                  <i class="fa-solid fa-medal text-pastelYellow-500"></i> เครื่องราชอิสริยาภรณ์ที่เคยได้รับ (ชั้นสูงสุด หรือที่เคยได้รับ)
+                </label>
+                <input type="text" id="f-insignia" placeholder="เช่น บ.ม., จ.ม., ท.ช., ท.ม. หรือ ยังไม่ได้รับ" 
+                       class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white outline-none focus:ring-2 focus:ring-mint-500/20">
+              </div>
             </div>
           </div>
 
@@ -969,6 +977,7 @@
         safeVal('edu-phd-major', phdMajor);
 
         safeVal('f-license', t["เลขที่ใบประกอบวิชาชีพ"] || '');
+        safeVal('f-insignia', t["เครื่องราชอิสริยาภรณ์ที่เคยได้รับ"] || '');
         const expDateVal = t["วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)"] || '';
         safeVal('f-license-exp', expDateVal);
         updateTeacherLicenseAlertBox(expDateVal);
@@ -1054,6 +1063,7 @@
           "สาขาวิชาเอก ป.เอก": pMajor,
 
           "เลขที่ใบประกอบวิชาชีพ": document.getElementById('f-license')?.value,
+          "เครื่องราชอิสริยาภรณ์ที่เคยได้รับ": document.getElementById('f-insignia')?.value || '',
           "วันหมดอายุใบประกอบวิชาชีพ (วัน/เดือน/ปี พ.ศ.)": document.getElementById('f-license-exp')?.value,
           "imageBase64": activeAvatarBase64,
           "imageMimeType": "image/jpeg"
