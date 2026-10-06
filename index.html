@@ -7,6 +7,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Cropper.js (สำหรับระบบครอบตัดรูป) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
@@ -26,6 +31,7 @@
   <style>
     body { font-family: 'Sarabun', sans-serif; background-color: #F8FAF9; }
     h1, h2, h3, h4, h5, .font-heading { font-family: 'Prompt', sans-serif; }
+    .cropper-view-box, .cropper-face { border-radius: 50%; } /* พรีวิวเป็นวงกลม */
   </style>
 </head>
 <body class="min-h-screen text-slate-700 flex flex-col antialiased">
@@ -60,7 +66,7 @@
     <!-- ================= 1. ส่วนของคุณครู ================= -->
     <div id="section-teacher" class="max-w-3xl mx-auto space-y-6">
       
-      <!-- บล็อกล็อกอินเข้าสู่ระบบ -->
+      <!-- บล็อกล็อกอิน -->
       <div id="login-card" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-emerald-100/80">
         <div class="text-center max-w-md mx-auto mb-6">
           <div class="w-14 h-14 bg-mint-50 text-mint-600 rounded-3xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
@@ -70,7 +76,6 @@
           <p class="text-xs text-slate-500 mt-1">เลือกวิธีเข้าสู่ระบบเพื่อเปิดแฟ้มข้อมูลและอัปโหลดรูปถ่ายของคุณ</p>
         </div>
 
-        <!-- แท็บสลับวิธีล็อกอิน -->
         <div class="flex p-1.5 bg-slate-100/80 rounded-2xl max-w-md mx-auto mb-6">
           <button onclick="setLoginMethod('cid')" id="tab-btn-cid" class="flex-1 py-2 text-xs font-semibold rounded-xl transition bg-white text-emerald-700 shadow-sm">
             <i class="fa-solid fa-id-card mr-1"></i> ใช้เลขบัตรประชาชน
@@ -80,7 +85,6 @@
           </button>
         </div>
 
-        <!-- ฟอร์มเข้าสู่ระบบ: วิธีที่ 1 (เลขบัตรประชาชน) -->
         <div id="login-by-cid" class="max-w-md mx-auto space-y-3">
           <input type="text" id="input-cid" maxlength="13" placeholder="กรอกเลขบัตรประชาชน 13 หลัก" 
                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-center text-lg font-mono tracking-widest focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition">
@@ -89,7 +93,6 @@
           </button>
         </div>
 
-        <!-- ฟอร์มเข้าสู่ระบบ: วิธีที่ 2 (ค้นด้วยชื่อ-สกุล) -->
         <div id="login-by-name" class="hidden max-w-md mx-auto space-y-3">
           <div>
             <label class="text-xs font-bold text-slate-600 mb-1 block">ค้นหาหรือเลือกชื่อของคุณ:</label>
@@ -105,20 +108,20 @@
         </div>
       </div>
 
-      <!-- ฟอร์มกรอก/แก้ไขข้อมูล (แสดงหลังล็อกอินผ่าน) -->
+      <!-- ฟอร์มโปรไฟล์ -->
       <div id="profile-editor-card" class="hidden bg-white rounded-3xl shadow-sm border border-emerald-100 overflow-hidden">
         
-        <!-- Header การ์ดโปรไฟล์พาสเทล -->
+        <!-- Header การ์ดโปรไฟล์ -->
         <div class="bg-gradient-to-r from-mint-500 via-teal-400 to-pastelSky-400 p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center gap-6">
           <div class="relative group">
             <img id="form-avatar" src="https://via.placeholder.com/150" class="w-28 h-28 rounded-3xl object-cover ring-4 ring-white/40 shadow-lg bg-white">
             <label for="form-file" class="absolute inset-0 bg-black/40 rounded-3xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition text-xs font-medium">
-              <i class="fa-solid fa-camera text-xl mb-1"></i> อัปโหลดรูป
+              <i class="fa-solid fa-crop-simple text-xl mb-1"></i> อัปโหลด & ครอปรูป
             </label>
-            <input type="file" id="form-file" accept="image/*" class="hidden" onchange="previewAvatar(event)">
+            <input type="file" id="form-file" accept="image/*" class="hidden" onchange="initCropProcess(event)">
           </div>
           <div class="text-center sm:text-left space-y-1">
-            <span id="label-dept" class="text-xs px-3 py-1 rounded-full bg-white/20 text-white backdrop-blur-md border border-white/30 font-medium">กลุ่มสาระ-</span>
+            <span id="label-dept" class="text-xs px-3 py-1 rounded-full bg-white/20 text-white border border-white/30 font-medium">กลุ่มสาระ-</span>
             <h2 id="label-name" class="text-2xl font-bold mt-1.5">-</h2>
             <p id="label-pos" class="text-xs text-white/90">-</p>
           </div>
@@ -128,7 +131,7 @@
           <input type="hidden" id="f-sheet">
           <input type="hidden" id="f-row">
 
-          <!-- 1. ช่องเลขบัตรประชาชน -->
+          <!-- 1. เลขบัตรประชาชน -->
           <div class="bg-pastelYellow-50 border border-pastelYellow-200 p-4 rounded-2xl">
             <label class="text-xs font-bold text-pastelYellow-700 flex items-center gap-1.5 mb-1">
               <i class="fa-solid fa-id-card text-pastelYellow-500"></i> เลขประจำตัวประชาชน 13 หลัก 
@@ -138,7 +141,7 @@
                    class="w-full p-3 bg-white border border-pastelYellow-200 rounded-xl font-mono text-base tracking-widest focus:ring-2 focus:ring-pastelYellow-400 outline-none">
           </div>
 
-          <!-- 2. ข้อมูลทั่วไป & วันเดือนปีเกิด (บังคับรูปแบบ 2 หลัก/2 หลัก/4 หลัก พ.ศ.) -->
+          <!-- 2. ข้อมูลส่วนตัว & วันเกิด (2 หลัก/2 หลัก/4 หลัก พ.ศ.) -->
           <div>
             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <i class="fa-solid fa-user text-mint-500"></i> ข้อมูลส่วนตัว
@@ -149,7 +152,6 @@
                 <input type="text" id="f-name" class="w-full mt-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition">
               </div>
 
-              <!-- วันเดือนปีเกิด (บังคับ วัน 2 หลัก, เดือน 2 หลัก, พ.ศ. 4 หลัก) -->
               <div>
                 <label class="text-xs font-semibold text-slate-600 block mb-1">
                   วันเกิด (วัน / เดือน / ปี พ.ศ.) <span class="text-rose-500">*</span>
@@ -178,13 +180,13 @@
             </div>
           </div>
 
-          <!-- 3. วุฒิการศึกษาแยกเป็นขั้น (ป.ตรี, ป.โท, ป.เอก) -->
+          <!-- 3. วุฒิการศึกษาแยกเป็นขั้น -->
           <div class="pt-4 border-t border-slate-100 space-y-4">
             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <i class="fa-solid fa-graduation-cap text-mint-500"></i> คุณวุฒิการศึกษา (กรอกเป็นขั้น)
             </h4>
 
-            <!-- ขั้นที่ 1: ปริญญาตรี (บังคับ) -->
+            <!-- ขั้นที่ 1: ปริญญาตรี -->
             <div class="p-4 bg-mint-50/50 rounded-2xl border border-mint-100 space-y-3">
               <div class="flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-mint-500 text-white flex items-center justify-center text-xs font-bold">1</span>
@@ -202,7 +204,7 @@
               </div>
             </div>
 
-            <!-- ขั้นที่ 2: ปริญญาโท (มีปุ่มเปิด/ปิด) -->
+            <!-- ขั้นที่ 2: ปริญญาโท -->
             <div class="p-4 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-3">
               <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
@@ -227,7 +229,7 @@
               </div>
             </div>
 
-            <!-- ขั้นที่ 3: ปริญญาเอก (มีปุ่มเปิด/ปิด) -->
+            <!-- ขั้นที่ 3: ปริญญาเอก -->
             <div class="p-4 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-3">
               <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
@@ -281,71 +283,42 @@
     <!-- ================= 2. ส่วนของผู้บริหาร (ADMIN AREA) ================= -->
     <div id="section-admin" class="hidden space-y-6">
 
-      <!-- Admin Top Bar -->
       <div class="flex flex-wrap justify-between items-center bg-white p-4 sm:p-5 rounded-3xl border border-emerald-100 shadow-sm gap-3">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-pastelSky-50 text-pastelSky-500 flex items-center justify-center text-lg">
-            <i class="fa-solid fa-crown"></i>
-          </div>
+          <div class="w-10 h-10 rounded-2xl bg-pastelSky-50 text-pastelSky-500 flex items-center justify-center text-lg"><i class="fa-solid fa-crown"></i></div>
           <div>
             <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">โหมดผู้บริหาร (Admin Dashboard)</h3>
             <span class="text-xs text-mint-600 font-medium"><i class="fa-solid fa-lock mr-1"></i>ระบบตรวจสอบและสถิติภาพรวม</span>
           </div>
         </div>
-        
         <div class="flex items-center gap-2">
-          <button onclick="switchAdminSubView('cards')" id="btn-sub-cards" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-mint-500 text-white transition shadow-sm">
-            <i class="fa-solid fa-address-book mr-1"></i> ทำเนียบบุคลากร
-          </button>
-          <button onclick="switchAdminSubView('stats')" id="btn-sub-stats" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
-            <i class="fa-solid fa-chart-pie mr-1"></i> แผนภูมิและสถิติ
-          </button>
-          <button onclick="logoutAdmin()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 transition border border-rose-100 ml-2">
-            <i class="fa-solid fa-right-from-bracket mr-1"></i> ออก
-          </button>
+          <button onclick="switchAdminSubView('cards')" id="btn-sub-cards" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-mint-500 text-white transition shadow-sm"><i class="fa-solid fa-address-book mr-1"></i> ทำเนียบบุคลากร</button>
+          <button onclick="switchAdminSubView('stats')" id="btn-sub-stats" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition"><i class="fa-solid fa-chart-pie mr-1"></i> แผนภูมิและสถิติ</button>
+          <button onclick="logoutAdmin()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 transition border border-rose-100 ml-2"><i class="fa-solid fa-right-from-bracket mr-1"></i> ออก</button>
         </div>
       </div>
 
-      <!-- สถิติแบบการ์ดพาสเทล 4 ใบ -->
+      <!-- สถิติแบบการ์ดพาสเทล -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-pastelSky-50/70 p-5 rounded-3xl border border-pastelSky-100 flex items-center justify-between">
-          <div>
-            <p class="text-xs font-bold text-pastelSky-700 uppercase">ครูและบุคลากร</p>
-            <h4 id="stat-total" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4>
-            <span class="text-[11px] text-pastelSky-500 mt-1 block">จากทุกกลุ่มสาระฯ</span>
-          </div>
+          <div><p class="text-xs font-bold text-pastelSky-700 uppercase">ครูและบุคลากร</p><h4 id="stat-total" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4></div>
           <div class="w-12 h-12 rounded-2xl bg-white text-pastelSky-500 flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-users"></i></div>
         </div>
-
         <div class="bg-mint-50/70 p-5 rounded-3xl border border-mint-100 flex items-center justify-between">
-          <div>
-            <p class="text-xs font-bold text-mint-700 uppercase">วุฒิ ป.โท - เอก</p>
-            <h4 id="stat-postgrad" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4>
-            <span class="text-[11px] text-mint-600 mt-1 block">ระดับสูงกว่า ป.ตรี</span>
-          </div>
+          <div><p class="text-xs font-bold text-mint-700 uppercase">วุฒิ ป.โท - เอก</p><h4 id="stat-postgrad" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4></div>
           <div class="w-12 h-12 rounded-2xl bg-white text-mint-600 flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-user-graduate"></i></div>
         </div>
-
         <div class="bg-pastelYellow-50/80 p-5 rounded-3xl border border-pastelYellow-200 flex items-center justify-between">
-          <div>
-            <p class="text-xs font-bold text-pastelYellow-700 uppercase">คศ.2 ขึ้นไป</p>
-            <h4 id="stat-highstanding" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4>
-            <span class="text-[11px] text-pastelYellow-700 mt-1 block">ชำนาญการขึ้นไป</span>
-          </div>
+          <div><p class="text-xs font-bold text-pastelYellow-700 uppercase">คศ.2 ขึ้นไป</p><h4 id="stat-highstanding" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4></div>
           <div class="w-12 h-12 rounded-2xl bg-white text-pastelYellow-500 flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-award"></i></div>
         </div>
-
         <div class="bg-rose-50/70 p-5 rounded-3xl border border-rose-100 flex items-center justify-between">
-          <div>
-            <p class="text-xs font-bold text-rose-600 uppercase">ยังไม่กรอกเลขบัตร</p>
-            <h4 id="stat-missing-cid" class="text-3xl font-extrabold text-rose-600 mt-1">0</h4>
-            <span class="text-[11px] text-rose-400 mt-1 block">รออัปเดตข้อมูล</span>
-          </div>
+          <div><p class="text-xs font-bold text-rose-600 uppercase">ยังไม่กรอกเลขบัตร</p><h4 id="stat-missing-cid" class="text-3xl font-extrabold text-rose-600 mt-1">0</h4></div>
           <div class="w-12 h-12 rounded-2xl bg-white text-rose-500 flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-circle-exclamation"></i></div>
         </div>
       </div>
 
-      <!-- สับเปลี่ยน: 1. ทำเนียบการ์ดครูรายบุคคล -->
+      <!-- สับเปลี่ยน: ทำเนียบการ์ดครู -->
       <div id="admin-view-cards" class="space-y-6">
         <div class="bg-white p-4 sm:p-5 rounded-3xl border border-emerald-100/80 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
           <div class="relative w-full md:w-80">
@@ -358,7 +331,7 @@
         <div id="admin-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
       </div>
 
-      <!-- สับเปลี่ยน: 2. แผนภูมิและกราฟสรุป -->
+      <!-- สับเปลี่ยน: แผนภูมิสถิติ -->
       <div id="admin-view-stats" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white p-6 rounded-3xl border border-emerald-100 shadow-sm">
           <h4 class="font-bold text-slate-800 text-sm mb-4">สัดส่วนบุคลากรแยกตามกลุ่มสาระฯ</h4>
@@ -374,13 +347,43 @@
 
   </main>
 
-  <!-- ================= MODAL แฟ้มประวัติบุคลากร (DOSSIER POPUP) ================= -->
+  <!-- ================= MODAL สำหรับครอบตัดรูป (CROPPER MODAL) ================= -->
+  <div id="modal-cropper" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-emerald-100 flex flex-col animate-in fade-in zoom-in duration-150">
+      <div class="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+        <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-crop-simple text-mint-500"></i> ปรับแต่งและครอบตัดรูปถ่าย
+        </h3>
+        <button onclick="closeCropModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <!-- พื้นที่วางรูปสำหรับ Cropper -->
+      <div class="p-4 bg-slate-900 flex items-center justify-center max-h-[60vh] overflow-hidden">
+        <img id="image-to-crop" class="max-w-full max-h-full block">
+      </div>
+
+      <!-- ปุ่มเครื่องมือเสริม (ซูม/หมุน) -->
+      <div class="p-3 bg-slate-50 border-t border-slate-100 flex justify-center gap-3">
+        <button type="button" onclick="cropper.zoom(0.1)" class="px-3 py-1.5 bg-white border rounded-xl text-xs font-semibold hover:bg-slate-100"><i class="fa-solid fa-magnifying-glass-plus mr-1"></i> ซูมเข้า</button>
+        <button type="button" onclick="cropper.zoom(-0.1)" class="px-3 py-1.5 bg-white border rounded-xl text-xs font-semibold hover:bg-slate-100"><i class="fa-solid fa-magnifying-glass-minus mr-1"></i> ซูมออก</button>
+        <button type="button" onclick="cropper.rotate(90)" class="px-3 py-1.5 bg-white border rounded-xl text-xs font-semibold hover:bg-slate-100"><i class="fa-solid fa-rotate-right mr-1"></i> หมุนภาพ</button>
+      </div>
+
+      <!-- ปุ่มยืนยัน -->
+      <div class="p-4 bg-white border-t border-slate-100 flex justify-end gap-2">
+        <button type="button" onclick="closeCropModal()" class="px-4 py-2 bg-slate-100 text-slate-600 font-semibold rounded-xl text-xs hover:bg-slate-200">ยกเลิก</button>
+        <button type="button" onclick="applyCrop()" class="px-5 py-2 bg-mint-500 hover:bg-mint-600 text-white font-bold rounded-xl text-xs shadow-sm flex items-center gap-1.5">
+          <i class="fa-solid fa-check"></i> ใช้รูปนี้
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL แฟ้มประวัติบุคลากร ================= -->
   <div id="modal-dossier" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden border border-emerald-100 flex flex-col max-h-[90vh]">
       <div class="bg-gradient-to-r from-mint-500 via-teal-400 to-pastelSky-400 p-6 text-white relative shrink-0">
-        <button onclick="closeDossierModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <button onclick="closeDossierModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
         <div class="flex items-center gap-4">
           <img id="m-avatar" src="" class="w-20 h-20 rounded-2xl object-cover ring-4 ring-white/30 bg-white shadow">
           <div>
@@ -422,11 +425,8 @@
   </div>
 
   <script>
-    // ** 1. ใส่ Web App URL ของคุณที่นี่ **
     const API_URL = "https://script.google.com/macros/s/AKfycbwpQxGSvcBVSO5PzVI3HWaz02b0I2XL5uL6k0tpncSwIfiiPDd2NbC8T4qxBkknAb8M/exec";
-
-    // ** 2. รหัสผ่านผู้บริหาร **
-    const ADMIN_PASSCODE = "admin1234";
+    const ADMIN_PASSCODE = "bspwit";
 
     let rawTeacherList = [];
     let isAdminUnlocked = false;
@@ -434,30 +434,25 @@
     let activeAvatarBase64 = null;
     let chartDept = null;
     let chartPos = null;
+    let cropper = null;
 
-    // เริ่มต้นสร้าง Dropdown วันเกิด (01-31, 01-12, 2490-2555 พ.ศ.)
     window.addEventListener('DOMContentLoaded', () => {
       initDateDropdowns();
       loadSystemData();
     });
 
     function initDateDropdowns() {
-      // วัน 01 - 31 (2 หลัก)
       const dSelect = document.getElementById('birth-day');
       for (let i = 1; i <= 31; i++) {
         const val = i < 10 ? `0${i}` : `${i}`;
         dSelect.innerHTML += `<option value="${val}">${val}</option>`;
       }
-
-      // เดือน 01 - 12 (2 หลัก)
       const mSelect = document.getElementById('birth-month');
       const thMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
       for (let i = 1; i <= 12; i++) {
         const val = i < 10 ? `0${i}` : `${i}`;
         mSelect.innerHTML += `<option value="${val}">${val} (${thMonths[i-1]})</option>`;
       }
-
-      // ปี พ.ศ. 2490 ถึง 2555 (4 หลัก)
       const ySelect = document.getElementById('birth-year');
       for (let y = 2555; y >= 2490; y--) {
         ySelect.innerHTML += `<option value="${y}">${y}</option>`;
@@ -479,7 +474,48 @@
       }
     }
 
-    // ================= โซนล็อกอินสำหรับคุณครู =================
+    // ================= ระบบครอบตัดรูป (CROPPER LOGIC) =================
+    function initCropProcess(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const imgElement = document.getElementById('image-to-crop');
+        imgElement.src = event.target.result;
+        
+        document.getElementById('modal-cropper').classList.remove('hidden');
+
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imgElement, {
+          aspectRatio: 1, // อัตราส่วน 1:1 พอดีรูปโปรไฟล์
+          viewMode: 1,
+          autoCropArea: 0.9,
+          responsive: true
+        });
+      };
+      reader.readAsDataURL(file);
+      e.target.value = ''; // รีเซ็ต input file
+    }
+
+    function applyCrop() {
+      if (!cropper) return;
+      // บีบอัดรูปและครอบตัดเป็นขนาด 600x600 px คมชัดและไม่หนักเน็ต
+      const canvas = cropper.getCroppedCanvas({ width: 600, height: 600 });
+      activeAvatarBase64 = canvas.toDataURL('image/jpeg', 0.85);
+      document.getElementById('form-avatar').src = activeAvatarBase64;
+      closeCropModal();
+    }
+
+    function closeCropModal() {
+      document.getElementById('modal-cropper').classList.add('hidden');
+      if (cropper) {
+        cropper.destroy();
+        cropper = null;
+      }
+    }
+
+    // ================= โซนของคุณครู =================
     function setLoginMethod(method) {
       if (method === 'cid') {
         document.getElementById('login-by-cid').classList.remove('hidden');
@@ -508,16 +544,10 @@
 
     function loginWithCid() {
       const cid = document.getElementById('input-cid').value.trim();
-      if (cid.length !== 13) {
-        Swal.fire('แจ้งเตือน', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
-        return;
-      }
+      if (cid.length !== 13) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
       const match = rawTeacherList.find(t => String(t["เลขที่บัตรประชาชน"]).replace(/\D/g, '') === cid);
-      if (match) {
-        openProfileEditor(match);
-      } else {
-        Swal.fire('ไม่พบเลขบัตรในระบบ', 'หากยังไม่เคยกรอกเลขบัตรประชาชน กรุณาเลือกแท็บ "ไม่มีเลขบัตร (ค้นด้วยชื่อ)" เพื่อค้นหาชื่อและเข้าไปกรอกเลขบัตรได้ครับ', 'info');
-      }
+      if (match) openProfileEditor(match);
+      else Swal.fire('ไม่พบเลขบัตรในระบบ', 'หากยังไม่เคยกรอกเลขบัตรประชาชน กรุณาเลือกแท็บ "ไม่มีเลขบัตร (ค้นด้วยชื่อ)" เพื่อเข้าไปกรอกเลขบัตรได้ครับ', 'info');
     }
 
     function loginWithName() {
@@ -528,7 +558,6 @@
       if (match) openProfileEditor(match);
     }
 
-    // สลับเปิด/ปิดกล่อง ป.โท, ป.เอก
     function toggleEduLevel(level) {
       if (level === 'master') {
         const isChecked = document.getElementById('check-master').checked;
@@ -539,7 +568,6 @@
       }
     }
 
-    // โหลดข้อมูลเข้าฟอร์มแก้ไข
     function openProfileEditor(t) {
       document.getElementById('login-card').classList.add('hidden');
       document.getElementById('f-sheet').value = t._sheetName;
@@ -555,7 +583,6 @@
       document.getElementById('f-phone').value = t["เบอร์โทร"] || '';
       document.getElementById('f-email').value = t["e-mail (ที่ไม่ใช่เมลล์ รร.)"] || '';
 
-      // แยกใส่วันเกิดเข้า 3 Dropdown (DD/MM/YYYY พ.ศ.)
       const birthStr = String(t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '');
       if (birthStr.includes('/')) {
         const parts = birthStr.split('/');
@@ -566,12 +593,9 @@
         }
       }
 
-      // จัดการวุฒิการศึกษาตามระดับ
-      // ป.ตรี
       document.getElementById('edu-bachelor-degree').value = t["วุฒิ ป.ตรี"] || t["วุฒิการศึกษา"] || '';
       document.getElementById('edu-bachelor-major').value = t["สาขาวิชาเอก ป.ตรี"] || '';
 
-      // ป.โท
       const masterDegree = t["วุฒิ ป.โท"] || '';
       const masterMajor = t["สาขาวิชาเอก ป.โท"] || '';
       if (masterDegree || masterMajor || (t["การศึกษาสูงสุด"] || '').includes('โท')) {
@@ -584,7 +608,6 @@
         document.getElementById('box-master').classList.add('hidden');
       }
 
-      // ป.เอก
       const phdDegree = t["วุฒิ ป.เอก"] || '';
       const phdMajor = t["สาขาวิชาเอก ป.เอก"] || '';
       if (phdDegree || phdMajor || (t["การศึกษาสูงสุด"] || '').includes('เอก')) {
@@ -604,32 +627,17 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function previewAvatar(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          document.getElementById('form-avatar').src = evt.target.result;
-          activeAvatarBase64 = evt.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    // บันทึกข้อมูล
     async function saveProfileData(e) {
       e.preventDefault();
 
-      // ตรวจสอบวันเกิด
       const bDay = document.getElementById('birth-day').value;
       const bMonth = document.getElementById('birth-month').value;
       const bYear = document.getElementById('birth-year').value;
       if (!bDay || !bMonth || !bYear) {
         return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือก วัน / เดือน / ปี พ.ศ. เกิด ให้ครบถ้วน', 'warning');
       }
-      const formattedBirthDate = `${bDay}/${bMonth}/${bYear}`; // เช่น 13/10/2533
+      const formattedBirthDate = `${bDay}/${bMonth}/${bYear}`;
 
-      // จัดการระดับการศึกษาสูงสุดและรวมสาขาวิชาเอก
       const bDegree = document.getElementById('edu-bachelor-degree').value.trim();
       const bMajor = document.getElementById('edu-bachelor-major').value.trim();
 
@@ -651,14 +659,13 @@
         highestDegree = mDegree;
       }
 
-      // สรุปช่องวิชาเอกเดิม (เพื่อความเข้ากันได้กับตารางเดิม)
       let combinedMajors = [];
       if (bMajor) combinedMajors.push(`1) ป.ตรี: ${bMajor}`);
       if (mMajor) combinedMajors.push(`2) ป.โท: ${mMajor}`);
       if (pMajor) combinedMajors.push(`3) ป.เอก: ${pMajor}`);
 
       const btn = document.getElementById('btn-save');
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูลเข้า Google Sheets...`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังอัปโหลดและบันทึกข้อมูล...`;
       btn.disabled = true;
 
       const payload = {
@@ -675,7 +682,6 @@
           "วุฒิการศึกษา": highestDegree,
           "วิชาเอก [กรณีจบ ป.โท/เอก ให้เพิ่มเอกโดยใส่หมายเลข 1)...2)...3)...]": combinedMajors.join(' '),
           
-          // คอลัมน์แยกขั้นใหม่ที่จะถูกเพิ่มเข้าชีทอัตโนมัติ
           "วุฒิ ป.ตรี": bDegree,
           "สาขาวิชาเอก ป.ตรี": bMajor,
           "วุฒิ ป.โท": mDegree,
@@ -697,7 +703,7 @@
           Swal.fire({
             icon: 'success',
             title: 'บันทึกสำเร็จ!',
-            text: 'ข้อมูลและคุณวุฒิแยกขั้นได้รับการอัปเดตลง Google Sheets เรียบร้อยแล้ว',
+            text: 'รูปถ่ายและข้อมูลของคุณได้รับการบันทึกลงชีทเรียบร้อยแล้ว',
             confirmButtonColor: '#10B981'
           });
           loadSystemData();
@@ -712,7 +718,7 @@
       }
     }
 
-    // ================= โซนของผู้บริหาร (ADMIN AREA) =================
+    // ================= โซนของผู้บริหาร =================
     async function handleAdminLogin() {
       if (isAdminUnlocked) return switchMainTab('admin');
       const { value: pass } = await Swal.fire({
@@ -853,7 +859,6 @@
       document.getElementById('m-retire').innerText = t["วันเกษียณ"] || '-';
       document.getElementById('m-edu').innerText = t["การศึกษาสูงสุด"] || '-';
 
-      // รายละเอียดคุณวุฒิแยกขั้น
       let eduHtml = '';
       if (t["วุฒิ ป.ตรี"]) eduHtml += `<div>• ป.ตรี: <b>${t["วุฒิ ป.ตรี"]}</b> (${t["สาขาวิชาเอก ป.ตรี"] || 'ไม่ระบุสาขา'})</div>`;
       if (t["วุฒิ ป.โท"]) eduHtml += `<div>• ป.โท: <b>${t["วุฒิ ป.โท"]}</b> (${t["สาขาวิชาเอก ป.โท"] || 'ไม่ระบุสาขา'})</div>`;
