@@ -1262,8 +1262,36 @@
       renderAdminStats();
     }
 
+    // เรียงลำดับปุ่มกลุ่มสาระตาม Google Sheets เป๊ะ 100%
     function renderAdminDeptPills() {
-      const depts = ["ทั้งหมด", ...new Set(rawTeacherList.map(t => t._sheetName))];
+      // กำหนดลำดับตามแท็บใน Google Sheets (รูปที่ 2)
+      const sheetOrder = [
+        "วิทยาศาสตร์",
+        "คณิตศาสตร์",
+        "ภาษาต่างประเทศ",
+        "สังคมศึกษา",
+        "แนะแนว",
+        "ภาษาไทย",
+        "ศิลปะ",
+        "การงานอาชีพ",
+        "สุขศึกษาและพลศึกษา",
+        "พนักงานราชการและลูกจ้างประจำ",
+        "ลูกจ้างเหมาบริการ"
+      ];
+
+      // ดึงรายชื่อกลุ่มสาระที่มีข้อมูลอยู่จริง
+      const existingDepts = [...new Set(rawTeacherList.map(t => t._sheetName).filter(Boolean))];
+
+      // จัดเรียงตามลำดับที่กำหนดไว้ข้างบน
+      existingDepts.sort((a, b) => {
+        let idxA = sheetOrder.indexOf(a);
+        let idxB = sheetOrder.indexOf(b);
+        if (idxA === -1) idxA = 999;
+        if (idxB === -1) idxB = 999;
+        return idxA - idxB;
+      });
+
+      const depts = ["ทั้งหมด", ...existingDepts];
       document.getElementById('admin-dept-tabs').innerHTML = depts.map(d => `
         <button onclick="setAdminDept('${d}')" class="shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${d === selectedDeptFilter ? 'bg-mint-500 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
           ${d}
