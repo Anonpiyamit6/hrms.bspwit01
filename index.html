@@ -45,29 +45,14 @@
       box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.15) !important;
       border: 1px solid #DCFCE7 !important;
     }
-    .swal2-title {
-      font-family: 'Prompt', sans-serif !important;
-      font-weight: 700 !important;
-      color: #1E293B !important;
-    }
-    .swal2-confirm {
-      border-radius: 1rem !important;
-      padding: 0.75rem 2rem !important;
-      font-weight: 600 !important;
-      background: linear-gradient(to right, #22C55E, #16A34A) !important;
-    }
-    .swal2-cancel {
-      border-radius: 1rem !important;
-      padding: 0.75rem 1.5rem !important;
-      font-weight: 600 !important;
-      background: #F1F5F9 !important;
-      color: #64748B !important;
-    }
+    .swal2-title { font-family: 'Prompt', sans-serif !important; font-weight: 700 !important; color: #1E293B !important; }
+    .swal2-confirm { border-radius: 1rem !important; padding: 0.75rem 2rem !important; font-weight: 600 !important; background: linear-gradient(to right, #22C55E, #16A34A) !important; }
+    .swal2-cancel { border-radius: 1rem !important; padding: 0.75rem 1.5rem !important; font-weight: 600 !important; background: #F1F5F9 !important; color: #64748B !important; }
   </style>
 </head>
 <body class="min-h-screen text-slate-700 flex flex-col antialiased">
 
-  <!-- ================= NAVBAR ================= -->
+  <!-- NAVBAR -->
   <header class="bg-white/90 backdrop-blur-md border-b border-mint-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-18 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-3 cursor-pointer" onclick="switchMainTab('teacher')">
@@ -91,10 +76,10 @@
     </div>
   </header>
 
-  <!-- ================= MAIN CONTENT ================= -->
+  <!-- MAIN CONTENT -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
 
-    <!-- ================= 1. ส่วนของคุณครู ================= -->
+    <!-- 1. ส่วนของคุณครู -->
     <div id="section-teacher" class="max-w-3xl mx-auto space-y-6">
       
       <!-- บล็อกล็อกอิน -->
@@ -104,7 +89,7 @@
             <i class="fa-solid fa-fingerprint"></i>
           </div>
           <h2 class="text-xl font-bold text-slate-800">เข้าสู่ระบบแก้ไขข้อมูลส่วนบุคคล</h2>
-          <p class="text-xs text-slate-500 mt-1">เลือกวิธีเข้าสู่ระบบเพื่อเปิดแฟ้มข้อมูลและอัปโหลดรูปถ่ายของคุณ</p>
+          <p class="text-xs text-slate-500 mt-1">เข้าถึงแฟ้มข้อมูลของท่านได้สะดวกรวดเร็ว</p>
         </div>
 
         <div class="flex p-1.5 bg-mint-50/60 border border-mint-100 rounded-2xl max-w-lg mx-auto mb-6">
@@ -121,7 +106,7 @@
           <input type="text" id="input-cid" maxlength="13" placeholder="กรอกเลขบัตรประชาชน 13 หลัก" 
                  onkeypress="if(event.key === 'Enter') loginWithCid()"
                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-center text-lg font-mono tracking-widest focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition">
-          <button onclick="loginWithCid()" class="w-full py-3 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
+          <button onclick="loginWithCid()" id="btn-search-cid" class="w-full py-3 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-arrow-right-to-bracket"></i> เปิดแฟ้มข้อมูลของฉัน
           </button>
         </div>
@@ -135,12 +120,12 @@
                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-mint-500/20 focus:border-mint-500 outline-none transition text-center font-medium">
             <p class="text-[11px] text-slate-400 mt-1.5 text-center">*ค้นหาเฉพาะพนักงานราชการ ลูกจ้างประจำ และลูกจ้างเหมาบริการ</p>
           </div>
-          <button onclick="loginByNameSearch()" class="w-full py-3 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
+          <button onclick="loginByNameSearch()" id="btn-search-name" class="w-full py-3 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-bold rounded-2xl shadow-md shadow-mint-500/20 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-magnifying-glass"></i> ค้นหาและเปิดแฟ้มข้อมูล
           </button>
         </div>
 
-        <!-- ปุ่มลงทะเบียนบุคลากรใหม่ (สำหรับครูบรรจุใหม่ / เพิ่มรายชื่อใหม่) -->
+        <!-- ปุ่มลงทะเบียนใหม่ -->
         <div class="mt-8 pt-5 border-t border-slate-100 text-center">
           <p class="text-xs text-slate-400 mb-2">ยังไม่มีรายชื่อในระบบ หรือเป็นบุคลากรบรรจุใหม่?</p>
           <button type="button" onclick="openNewRegistrationForm()" class="px-5 py-2.5 rounded-2xl bg-mint-50 hover:bg-mint-100 text-mint-700 font-bold text-xs border border-mint-200 transition inline-flex items-center gap-2 shadow-xs">
@@ -189,14 +174,12 @@
           <input type="hidden" id="f-sheet">
           <input type="hidden" id="f-row">
 
-          <!-- กล่องเลือกกลุ่มสาระ (แสดงเฉพาะตอนลงทะเบียนใหม่) -->
+          <!-- กล่องเลือกกลุ่มสาระ (แสดงตอนลงทะเบียนใหม่) -->
           <div id="box-new-dept-select" class="hidden bg-mint-50 border border-mint-200 p-4 rounded-2xl">
             <label class="text-xs font-bold text-mint-800 block mb-1">
               <i class="fa-solid fa-sitemap mr-1"></i> เลือกกลุ่มสาระฯ หรือกลุ่มงานที่สังกัด <span class="text-rose-500">*จำเป็น</span>
             </label>
-            <select id="f-new-dept" class="w-full p-2.5 bg-white border border-mint-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-mint-500 outline-none">
-              <!-- รายชื่อกลุ่มสาระจะถูกสร้างด้วย JS -->
-            </select>
+            <select id="f-new-dept" class="w-full p-2.5 bg-white border border-mint-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-mint-500 outline-none"></select>
           </div>
 
           <!-- แจ้งเตือนสถานะใบประกอบวิชาชีพ -->
@@ -218,7 +201,7 @@
                    class="w-full p-3 bg-white border border-pastelYellow-200 rounded-xl font-mono text-base tracking-widest focus:ring-2 focus:ring-pastelYellow-400 outline-none">
           </div>
 
-          <!-- 2. ข้อมูลส่วนตัว & วันเกิด -->
+          <!-- 2. ข้อมูลส่วนตัว -->
           <div>
             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <i class="fa-solid fa-user text-mint-500"></i> ข้อมูลส่วนตัว ตำแหน่ง และอายุ
@@ -376,7 +359,7 @@
 
     </div>
 
-    <!-- ================= 2. ส่วนของผู้บริหาร (ADMIN AREA) ================= -->
+    <!-- 2. ส่วนของผู้บริหาร (ADMIN AREA) -->
     <div id="section-admin" class="hidden space-y-6">
 
       <div class="flex flex-wrap justify-between items-center bg-white p-4 sm:p-5 rounded-3xl border border-mint-100 shadow-sm gap-3">
@@ -457,7 +440,7 @@
         <div id="admin-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
       </div>
 
-      <!-- สับเปลี่ยน: 2. แผนภูมิสถิติ (กราฟอยู่บน -> ตารางอยู่ล่าง) -->
+      <!-- สับเปลี่ยน: 2. แผนภูมิสถิติ -->
       <div id="admin-view-stats" class="hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="bg-white p-6 rounded-3xl border border-mint-100 shadow-sm">
@@ -499,7 +482,7 @@
 
   </main>
 
-  <!-- ================= MODAL ครอปตัดรูป ================= -->
+  <!-- MODAL ครอปตัดรูป -->
   <div id="modal-cropper" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-mint-100 flex flex-col">
       <div class="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
@@ -528,7 +511,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL แฟ้มประวัติบุคลากร ================= -->
+  <!-- MODAL แฟ้มประวัติบุคลากร -->
   <div id="modal-dossier" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden border border-mint-100 flex flex-col max-h-[90vh]">
       <div class="bg-gradient-to-r from-mint-500 via-mint-600 to-pastelYellow-500 p-6 text-white relative shrink-0">
@@ -580,13 +563,14 @@
     const ADMIN_PASSCODE = "bspwit";
 
     let rawTeacherList = [];
+    let deptList = [];
     let isAdminUnlocked = false;
     let selectedDeptFilter = "ทั้งหมด";
     let activeAvatarBase64 = null;
     let chartDept = null;
     let chartPos = null;
     let cropper = null;
-    let isRegisteringNew = false; // ตัวแปรบอกสถานะว่ากำลังลงทะเบียนใหม่หรือไม่
+    let isRegisteringNew = false;
 
     function safeVal(id, val) {
       const el = document.getElementById(id);
@@ -602,9 +586,18 @@
       image.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=DCFCE7&color=15803D&size=300&bold=true`;
     }
 
+    // หน้าเว็บเปิดขึ้นมาทันที ไม่ต้องรอชีท!
     window.addEventListener('DOMContentLoaded', () => {
       initDateDropdowns();
-      loadSystemData(false);
+      // ดึงรายชื่อกลุ่มสาระฯ เงียบๆ เบื้องหลัง
+      fetch(`${API_URL}?action=getDepts`)
+        .then(res => res.json())
+        .then(json => {
+          if (json.success && json.data) {
+            deptList = json.data;
+            setupDepartmentSelect();
+          }
+        }).catch(e => {});
     });
 
     function initDateDropdowns() {
@@ -734,45 +727,10 @@
       }
     }
 
-    // ฟังก์ชันโหลดข้อมูล (มี Timeout ป้องกันหน้าค้างหมุนวน 100%)
-    async function loadSystemData(showLoading = false) {
-      if (showLoading) {
-        Swal.fire({ title: 'กำลังโหลดข้อมูล...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-      }
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // ตัดการรอใน 10 วินาที
-
-      try {
-        const res = await fetch(`${API_URL}?action=getAll`, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        const json = await res.json();
-        if (showLoading) Swal.close();
-        
-        if (json.success && json.data) {
-          rawTeacherList = json.data;
-          setupDepartmentSelect();
-          if (isAdminUnlocked) {
-            renderAdminCards();
-            renderAdminStats();
-          }
-          return true;
-        }
-      } catch (err) {
-        clearTimeout(timeoutId);
-        if (showLoading) {
-          Swal.fire('การเชื่อมต่อล่าช้า', 'สัญญาณอินเทอร์เน็ตหรือเซิร์ฟเวอร์ตอบสนองช้า กรุณาลองใหม่อีกครั้ง', 'warning');
-        }
-      }
-      return false;
-    }
-
-    // สร้างตัวเลือกกลุ่มสาระสำหรับหน้าลงทะเบียนใหม่
     function setupDepartmentSelect() {
-      const depts = [...new Set(rawTeacherList.map(t => t._sheetName))];
       const select = document.getElementById('f-new-dept');
-      if (select && depts.length > 0) {
-        select.innerHTML = depts.map(d => `<option value="${d}">${d}</option>`).join('');
+      if (select && deptList.length > 0) {
+        select.innerHTML = deptList.map(d => `<option value="${d}">${d}</option>`).join('');
       }
     }
 
@@ -815,7 +773,7 @@
       }
     }
 
-    // ================= โซนล็อกอินของคุณครู =================
+    // ================= โซนล็อกอินครู (FAST LOOKUP - เร็วสุดๆ ใน 1 วิ) =================
     function setLoginMethod(method) {
       if (method === 'cid') {
         document.getElementById('login-by-cid').classList.remove('hidden');
@@ -830,120 +788,116 @@
       }
     }
 
-    // ล็อกอินด้วยเลขบัตรประชาชน (มีกันค้าง)
+    // ล็อกอินด้วยเลขบัตร (ยิงค้นหารายบุคคลตรงๆ ไม่โหลดชีททั้งระบบ)
     async function loginWithCid() {
       const cid = (document.getElementById('input-cid')?.value || '').trim();
       if (cid.length !== 13) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
       
-      if (rawTeacherList.length === 0) {
-        const ok = await loadSystemData(true);
-        if (!ok) return;
-      }
+      const btn = document.getElementById('btn-search-cid');
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังตรวจสอบ...`;
+      btn.disabled = true;
 
-      const match = rawTeacherList.find(t => String(t["เลขที่บัตรประชาชน"]).replace(/\D/g, '') === cid);
-      if (match) {
-        isRegisteringNew = false;
-        openProfileEditor(match);
-      } else {
-        Swal.fire({
-          icon: 'question',
-          title: 'ไม่พบเลขบัตรในระบบ',
-          text: 'หากท่านเป็นครูบรรจุใหม่หรือยังไม่มีข้อมูลในระบบ สามารถกด "ลงทะเบียนบุคลากรใหม่" เพื่อเพิ่มรายชื่อได้ครับ',
-          showCancelButton: true,
-          confirmButtonText: '➕ ลงทะเบียนใหม่ทันที',
-          cancelButtonText: 'ปิด',
-          confirmButtonColor: '#22C55E'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            openNewRegistrationForm(cid);
-          }
-        });
+      try {
+        const res = await fetch(`${API_URL}?action=getByCid&cid=${cid}`);
+        const json = await res.json();
+        
+        if (json.success && json.found && json.data) {
+          isRegisteringNew = false;
+          openProfileEditor(json.data);
+        } else {
+          Swal.fire({
+            icon: 'question',
+            title: 'ไม่พบเลขบัตรในระบบ',
+            text: 'หากท่านเป็นครูบรรจุใหม่หรือยังไม่มีข้อมูลในระบบ สามารถกด "ลงทะเบียนใหม่" เพื่อเพิ่มรายชื่อได้ครับ',
+            showCancelButton: true,
+            confirmButtonText: '➕ ลงทะเบียนใหม่ทันที',
+            cancelButtonText: 'ปิด',
+            confirmButtonColor: '#22C55E'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              openNewRegistrationForm(cid);
+            }
+          });
+        }
+      } catch (err) {
+        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง', 'error');
+      } finally {
+        btn.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> เปิดแฟ้มข้อมูลของฉัน`;
+        btn.disabled = false;
       }
     }
 
-    // ค้นหาด้วยชื่อ (มีระบบกันหมุนค้าง 100%)
+    // ค้นหาด้วยชื่อ (ยิงค้นหาเฉพาะแท็บลูกจ้างโดยตรง - เร็วมาก)
     async function loginByNameSearch() {
       const keyword = (document.getElementById('input-search-name')?.value || '').trim();
       if (!keyword || keyword.length < 2) {
         return Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อ หรือ นามสกุล อย่างน้อย 2 ตัวอักษร', 'warning');
       }
 
-      if (rawTeacherList.length === 0) {
-        const ok = await loadSystemData(true);
-        if (!ok) return;
-      }
+      const btn = document.getElementById('btn-search-name');
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังค้นหา...`;
+      btn.disabled = true;
 
-      const cleanKeyword = keyword.toLowerCase().replace(/\s+/g, '');
-      const allowedSheets = ["พนักงานราชการและลูกจ้างประจำ", "ลูกจ้างเหมาบริการ"];
+      try {
+        const res = await fetch(`${API_URL}?action=getByName&name=${encodeURIComponent(keyword)}`);
+        const json = await res.json();
+        const matches = (json.success && json.data) ? json.data : [];
 
-      const matches = rawTeacherList.filter(t => {
-        const isStaff = allowedSheets.some(sheetName => (t._sheetName || '').includes(sheetName));
-        const fullName = String(t["ชื่อ-นามสกุล"] || '').toLowerCase().replace(/\s+/g, '');
-        return isStaff && fullName.includes(cleanKeyword);
-      });
-
-      const isTeacher = rawTeacherList.some(t => {
-        const isStaff = allowedSheets.some(sheetName => (t._sheetName || '').includes(sheetName));
-        const fullName = String(t["ชื่อ-นามสกุล"] || '').toLowerCase().replace(/\s+/g, '');
-        return !isStaff && fullName.includes(cleanKeyword);
-      });
-
-      if (matches.length === 1) {
-        isRegisteringNew = false;
-        openProfileEditor(matches[0]);
-      } else if (matches.length > 1) {
-        let candidateCardsHtml = `
-          <p class="text-xs text-slate-500 mb-3">พบรายชื่อลูกจ้างที่ตรงกัน ${matches.length} คน กรุณาคลิกเลือกชื่อของคุณ:</p>
-          <div class="space-y-2 text-left max-h-64 overflow-y-auto custom-scrollbar p-1">
-        `;
-        matches.forEach((m, idx) => {
-          candidateCardsHtml += `
-            <div onclick="chooseCandidateProfile(${idx})" class="p-3.5 rounded-2xl border border-mint-100 bg-mint-50/40 hover:bg-mint-100/70 hover:border-mint-400 cursor-pointer transition flex items-center justify-between group shadow-xs">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-mint-500 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                  ${(m["ชื่อ-นามสกุล"] || '').charAt(0)}
-                </div>
-                <div>
-                  <b class="text-sm text-slate-800 block group-hover:text-mint-700 transition">${m["ชื่อ-นามสกุล"]}</b>
-                  <span class="text-[11px] text-slate-500">${m._sheetName} | ${m["ตำแหน่ง"] || 'ลูกจ้าง'}</span>
-                </div>
-              </div>
-              <i class="fa-solid fa-angle-right text-slate-400 group-hover:text-mint-600 transition text-sm"></i>
-            </div>
+        if (matches.length === 1) {
+          isRegisteringNew = false;
+          openProfileEditor(matches[0]);
+        } else if (matches.length > 1) {
+          let candidateCardsHtml = `
+            <p class="text-xs text-slate-500 mb-3">พบรายชื่อลูกจ้างที่ตรงกัน ${matches.length} คน กรุณาคลิกเลือกชื่อของคุณ:</p>
+            <div class="space-y-2 text-left max-h-64 overflow-y-auto custom-scrollbar p-1">
           `;
-        });
-        candidateCardsHtml += `</div>`;
+          matches.forEach((m, idx) => {
+            candidateCardsHtml += `
+              <div onclick="chooseCandidateProfile(${idx})" class="p-3.5 rounded-2xl border border-mint-100 bg-mint-50/40 hover:bg-mint-100/70 hover:border-mint-400 cursor-pointer transition flex items-center justify-between group shadow-xs">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-mint-500 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                    ${(m["ชื่อ-นามสกุล"] || '').charAt(0)}
+                  </div>
+                  <div>
+                    <b class="text-sm text-slate-800 block group-hover:text-mint-700 transition">${m["ชื่อ-นามสกุล"]}</b>
+                    <span class="text-[11px] text-slate-500">${m._sheetName} | ${m["ตำแหน่ง"] || 'ลูกจ้าง'}</span>
+                  </div>
+                </div>
+                <i class="fa-solid fa-angle-right text-slate-400 group-hover:text-mint-600 transition text-sm"></i>
+              </div>
+            `;
+          });
+          candidateCardsHtml += `</div>`;
 
-        window._matchedCandidates = matches;
+          window._matchedCandidates = matches;
 
-        Swal.fire({
-          title: 'ผลการค้นหารายชื่อ',
-          html: candidateCardsHtml,
-          showConfirmButton: false,
-          showCancelButton: true,
-          cancelButtonText: 'ปิดหน้าต่าง'
-        });
-      } else if (isTeacher) {
-        Swal.fire({
-          icon: 'info',
-          title: 'สำหรับคุณครูผู้สอน',
-          text: 'คุณครูต้องเข้าสู่ระบบด้วย "เลขประจำตัวประชาชน 13 หลัก" เท่านั้นครับ (ช่องนี้สงวนไว้เฉพาะพนักงานราชการและลูกจ้าง)',
-          confirmButtonColor: '#22C55E'
-        });
-      } else {
-        Swal.fire({
-          icon: 'question',
-          title: 'ไม่พบข้อมูลในระบบ',
-          text: `ไม่พบรายชื่อ "${keyword}" หากเป็นบุคลากรใหม่ สามารถกดลงทะเบียนใหม่ได้ครับ`,
-          showCancelButton: true,
-          confirmButtonText: '➕ ลงทะเบียนบุคลากรใหม่',
-          cancelButtonText: 'ลองค้นใหม่',
-          confirmButtonColor: '#22C55E'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            openNewRegistrationForm();
-          }
-        });
+          Swal.fire({
+            title: 'ผลการค้นหารายชื่อ',
+            html: candidateCardsHtml,
+            showConfirmButton: false,
+            showCancelButton: true,
+            cancelButtonText: 'ปิดหน้าต่าง'
+          });
+        } else {
+          Swal.fire({
+            icon: 'question',
+            title: 'ไม่พบข้อมูลในระบบ',
+            text: `ไม่พบรายชื่อ "${keyword}" ในกลุ่มพนักงานราชการหรือลูกจ้าง หากเป็นบุคลากรใหม่ สามารถกดลงทะเบียนใหม่ได้ครับ`,
+            showCancelButton: true,
+            confirmButtonText: '➕ ลงทะเบียนบุคลากรใหม่',
+            cancelButtonText: 'ลองค้นใหม่',
+            confirmButtonColor: '#22C55E'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              openNewRegistrationForm();
+            }
+          });
+        }
+      } catch (err) {
+        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง', 'error');
+      } finally {
+        btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> ค้นหาและเปิดแฟ้มข้อมูล`;
+        btn.disabled = false;
       }
     }
 
@@ -955,12 +909,11 @@
       }
     }
 
-    // ================= ฟังก์ชันเปิดหน้าลงทะเบียนใหม่ =================
+    // เปิดหน้าลงทะเบียนใหม่
     function openNewRegistrationForm(prefilledCid = '') {
       isRegisteringNew = true;
       setupDepartmentSelect();
 
-      // ล้างข้อมูลเก่าออกทั้งหมด
       safeVal('f-sheet', '');
       safeVal('f-row', '');
       safeVal('f-cid', prefilledCid);
@@ -991,7 +944,6 @@
       if (checkP) checkP.checked = false;
       document.getElementById('box-phd')?.classList.add('hidden');
 
-      // แสดงช่องเลือกกลุ่มสาระฯ
       document.getElementById('box-new-dept-select')?.classList.remove('hidden');
 
       safeText('label-dept', 'บุคลากรบรรจุใหม่');
@@ -1031,7 +983,6 @@
       }
     }
 
-    // เปิดหน้าแก้ไขข้อมูลเดิม
     function openProfileEditor(t) {
       isRegisteringNew = false;
       document.getElementById('box-new-dept-select')?.classList.add('hidden');
@@ -1126,7 +1077,6 @@
       }
     }
 
-    // บันทึกข้อมูล (รองรับทั้งอัปเดตคนเดิม และลงทะเบียนคนใหม่)
     async function saveProfileData(e) {
       e.preventDefault();
 
@@ -1144,7 +1094,6 @@
       const formattedBirthDate = `${bDay}/${bMonth}/${bYear}`;
       const calculatedAge = calculateAge(bDay, bMonth, bYear);
 
-      // กำหนดชีทปลายทาง
       let targetSheet = document.getElementById('f-sheet')?.value;
       if (isRegisteringNew) {
         targetSheet = document.getElementById('f-new-dept')?.value;
@@ -1221,7 +1170,6 @@
         const json = await res.json();
         
         if (json.success) {
-          await loadSystemData(false);
           Swal.fire({
             icon: 'success',
             title: isRegisteringNew ? 'ลงทะเบียนใหม่สำเร็จ!' : 'อัปเดตข้อมูลสำเร็จเรียบร้อย!',
@@ -1257,7 +1205,20 @@
       if (pass === ADMIN_PASSCODE) {
         isAdminUnlocked = true;
         switchMainTab('admin');
-        setupAdminDashboard();
+        
+        // โหลดข้อมูลรวม 154 คนเฉพาะตอนที่ผู้บริหารเข้าสู่ระบบ
+        Swal.fire({ title: 'กำลังโหลดข้อมูลทั้งระบบ...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        try {
+          const res = await fetch(`${API_URL}?action=getAll`);
+          const json = await res.json();
+          Swal.close();
+          if (json.success && json.data) {
+            rawTeacherList = json.data;
+            setupAdminDashboard();
+          }
+        } catch(e) {
+          Swal.fire('ข้อผิดพลาด', 'โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่', 'error');
+        }
       } else if (pass) {
         Swal.fire('รหัสผ่านไม่ถูกต้อง', 'เฉพาะผู้บริหารที่ได้รับอนุญาตเท่านั้น', 'error');
       }
@@ -1302,6 +1263,7 @@
         const hasCid = !!t["เลขที่บัตรประชาชน"];
         const photoUrl = t["รูปถ่าย"] || '';
         const normPos = normalizePosition(t["ตำแหน่ง"]);
+        const cleanAge = String(t["อายุ"] || '-').replace(/ปี/g, '').trim();
         return `
         <div onclick='openDossier(${JSON.stringify(t)})' class="bg-white rounded-3xl p-5 border border-mint-100 shadow-sm hover:shadow-xl hover:border-mint-300 transition duration-300 cursor-pointer flex flex-col items-center text-center relative group">
           <div class="relative w-24 h-24 mb-3">
@@ -1312,7 +1274,7 @@
           <h4 class="font-bold text-sm text-slate-800 group-hover:text-mint-600 transition truncate w-full">${t["ชื่อ-นามสกุล"]}</h4>
           <p class="text-xs text-slate-400 mt-0.5">${normPos}</p>
           <div class="mt-4 pt-3 border-t border-slate-100 w-full flex justify-between text-[11px] text-slate-400">
-            <span>อายุ ${t["อายุ"] || '-'}</span>
+            <span>อายุ ${cleanAge !== '-' ? cleanAge + ' ปี' : '-'}</span>
             <span class="text-mint-600 font-semibold flex items-center gap-1">ดูแฟ้ม <i class="fa-solid fa-angle-right text-[10px]"></i></span>
           </div>
         </div>`;
@@ -1452,7 +1414,9 @@
       safeText('m-cid', t["เลขที่บัตรประชาชน"] || 'ยังไม่มีข้อมูล');
       safeText('m-posno', t["เลขที่ตำแหน่ง"] || '-');
       safeText('m-birth', t["วันเกิด (วัน/เดือน/ปี พ.ศ.)"] || '-');
-      safeText('m-age', `${t["อายุ"] || '-'}`);
+      
+      const cleanAge = String(t["อายุ"] || '-').replace(/ปี/g, '').trim();
+      safeText('m-age', cleanAge !== '-' ? `${cleanAge} ปี` : '-');
 
       const isOutsourced = (t._sheetName || '').includes("ลูกจ้างเหมา") || (t["ตำแหน่ง"] || '').includes("เหมาบริการ");
       const appointLabel = isOutsourced ? "วันเริ่มสัญญาจ้าง:" : "วันที่บรรจุ:";
